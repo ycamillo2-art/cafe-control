@@ -34,9 +34,9 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Total Recebido (Maduro)</p>
-              <p className="text-2xl md:text-3xl font-black leading-tight">
-                {totals.mature.toLocaleString('pt-BR')} kg
-                <span className="text-sm font-bold opacity-60 ml-2">({(totals.mature / 60).toFixed(1)} sacas)</span>
+              <p className="text-2xl md:text-3xl font-black leading-tight flex items-baseline gap-2">
+                {totals.mature.toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
+                <span className="text-xs font-bold opacity-60">({(totals.mature / 60).toFixed(1)} sc)</span>
               </p>
             </div>
           </div>
@@ -49,9 +49,9 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Total Pilado (Rendimento)</p>
-              <p className="text-2xl md:text-3xl font-black leading-tight">
-                {totals.milled.toLocaleString('pt-BR')} kg
-                <span className="text-sm font-bold opacity-60 ml-2">({(totals.milled / 60).toFixed(1)} sacas)</span>
+              <p className="text-2xl md:text-3xl font-black leading-tight flex items-baseline gap-2">
+                {totals.milled.toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
+                <span className="text-xs font-bold opacity-60">({(totals.milled / 60).toFixed(1)} sc)</span>
               </p>
             </div>
           </div>
@@ -64,9 +64,9 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Total Vendido</p>
-              <p className="text-2xl md:text-3xl font-black leading-tight">
-                {totals.sold.toLocaleString('pt-BR')} kg
-                <span className="text-sm font-bold opacity-60 ml-2">({(totals.sold / 60).toFixed(1)} sacas)</span>
+              <p className="text-2xl md:text-3xl font-black leading-tight flex items-baseline gap-2">
+                {totals.sold.toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
+                <span className="text-xs font-bold opacity-60">({(totals.sold / 60).toFixed(1)} sc)</span>
               </p>
             </div>
           </div>
@@ -79,9 +79,9 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Estoque Atual (Pilado)</p>
-              <p className="text-2xl md:text-3xl font-black leading-tight">
-                {totals.balance.toLocaleString('pt-BR')} kg
-                <span className="text-sm font-bold opacity-60 ml-2">({(totals.balance / 60).toFixed(1)} sacas)</span>
+              <p className="text-2xl md:text-3xl font-black leading-tight flex items-baseline gap-2">
+                {totals.balance.toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
+                <span className="text-xs font-bold opacity-60">({(totals.balance / 60).toFixed(1)} sc)</span>
               </p>
             </div>
           </div>
