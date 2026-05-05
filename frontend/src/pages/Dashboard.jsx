@@ -13,14 +13,18 @@ export default function Dashboard() {
 
   useEffect(() => {
     api.get('/producers').then(res => {
-      const prods = res.data;
-      const sum = prods.reduce((acc, p) => ({
-        mature: acc.mature + (p.total_mature || 0),
-        milled: acc.milled + (p.total_milled || 0),
-        sold: acc.sold + (p.total_sold || 0),
-        balance: acc.balance + (p.balance || 0)
-      }), { mature: 0, milled: 0, sold: 0, balance: 0 });
-      setTotals(sum);
+      const producers = res.data;
+      if (producers && producers.length > 0) {
+        const t = producers.reduce((acc, p) => ({
+          mature: acc.mature + (Number(p.total_mature) || 0),
+          milled: acc.milled + (Number(p.total_milled) || 0),
+          sold: acc.sold + (Number(p.total_sold) || 0),
+          balance: acc.balance + (Number(p.balance) || 0)
+        }), { mature: 0, milled: 0, sold: 0, balance: 0 });
+        setTotals(t);
+      }
+    }).catch(err => {
+      console.error('Erro ao carregar totais:', err);
     });
   }, []);
 

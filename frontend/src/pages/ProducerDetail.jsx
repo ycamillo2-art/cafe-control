@@ -90,14 +90,14 @@ export default function ProducerDetail() {
       doc.setFontSize(18);
       doc.text('EXTRATO DO PRODUTOR', pageWidth / 2, 20, { align: 'center' });
       doc.setFontSize(14);
-      doc.text(data.name.toUpperCase(), pageWidth / 2, 30, { align: 'center' });
+      doc.text((data.name || '').toUpperCase(), pageWidth / 2, 30, { align: 'center' });
 
       // Summary
       doc.setFontSize(10);
-      doc.text(`Total Maduro: ${data.summary.total_mature.toLocaleString('pt-BR')} kg`, 20, 45);
-      doc.text(`Total Pilado: ${data.summary.total_milled.toLocaleString('pt-BR')} kg (${(data.summary.total_milled / 60).toFixed(1)} sacas)`, 20, 52);
-      doc.text(`Total Vendido: ${data.summary.total_sold.toLocaleString('pt-BR')} kg (${(data.summary.total_sold / 60).toFixed(1)} sacas)`, 20, 59);
-      doc.text(`SALDO ATUAL: ${data.summary.balance.toLocaleString('pt-BR')} kg (${(data.summary.balance / 60).toFixed(1)} sacas)`, 20, 66);
+      doc.text(`Total Maduro: ${(data.summary?.total_mature || 0).toLocaleString('pt-BR')} kg`, 20, 45);
+      doc.text(`Total Pilado: ${(data.summary?.total_milled || 0).toLocaleString('pt-BR')} kg (${((data.summary?.total_milled || 0) / 60).toFixed(1)} sacas)`, 20, 52);
+      doc.text(`Total Vendido: ${(data.summary?.total_sold || 0).toLocaleString('pt-BR')} kg (${((data.summary?.total_sold || 0) / 60).toFixed(1)} sacas)`, 20, 59);
+      doc.text(`SALDO ATUAL: ${(data.summary?.balance || 0).toLocaleString('pt-BR')} kg (${((data.summary?.balance || 0) / 60).toFixed(1)} sacas)`, 20, 66);
 
       if (data.harvest_finished_at) {
         doc.setFont('helvetica', 'bold');
@@ -110,32 +110,33 @@ export default function ProducerDetail() {
       autoTable(doc, {
         startY: 90,
         head: [['Guia', 'Data', 'Peso Maduro', 'Sacas Piladas', 'Peso Pilado']],
-        body: data.guides.map(g => [
+        body: (data.guides || []).map(g => [
           g.guide_number,
           new Date(g.date).toLocaleDateString('pt-BR'),
-          `${Number(g.weight_mature).toLocaleString('pt-BR')} kg`,
+          `${Number(g.weight_mature || 0).toLocaleString('pt-BR')} kg`,
           g.weight_milled ? (Number(g.weight_milled) / 60).toFixed(1) : '-',
           g.weight_milled ? `${Number(g.weight_milled).toLocaleString('pt-BR')} kg` : '-'
         ]),
       });
 
       // Sales Table
-      doc.text('VENDAS REALIZADAS', 20, doc.lastAutoTable.finalY + 15);
+      const salesTableY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 15 : 150;
+      doc.text('VENDAS REALIZADAS', 20, salesTableY);
       autoTable(doc, {
-        startY: doc.lastAutoTable.finalY + 20,
+        startY: salesTableY + 5,
         head: [['Data', 'Sacas', 'Peso (kg)', 'Status']],
-        body: data.sales.map(s => [
+        body: (data.sales || []).map(s => [
           new Date(s.date).toLocaleDateString('pt-BR'),
-          (Number(s.quantity) / 60).toFixed(1),
-          `${Number(s.quantity).toLocaleString('pt-BR')} kg`,
+          (Number(s.quantity || 0) / 60).toFixed(1),
+          `${Number(s.quantity || 0).toLocaleString('pt-BR')} kg`,
           s.is_post_harvest ? 'PÓS-SAFRA' : 'SAFRA'
         ]),
       });
 
       doc.save(`extrato-${data.name.toLowerCase().replace(/\s+/g, '-')}.pdf`);
     } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      alert('Erro ao gerar o arquivo PDF. Tente novamente.');
+      console.error('Erro detalhado ao gerar PDF:', error);
+      alert('Erro ao gerar o arquivo PDF. Verifique os dados e tente novamente.');
     }
   };
 
