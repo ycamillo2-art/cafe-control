@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home } from 'lucide-react';
 import api from '../utils/api';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 export default function ProducerDetail() {
   const { id } = useParams();
@@ -107,7 +107,7 @@ export default function ProducerDetail() {
 
       // Guides Table
       doc.text('ENTRADAS DE CAFÉ', 20, 85);
-      autoTable(doc, {
+      doc.autoTable({
         startY: 90,
         head: [['Guia', 'Data', 'Peso Maduro', 'Sacas Piladas', 'Peso Pilado']],
         body: (data.guides || []).map(g => [
@@ -122,7 +122,7 @@ export default function ProducerDetail() {
       // Sales Table
       const salesTableY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 15 : 150;
       doc.text('VENDAS REALIZADAS', 20, salesTableY);
-      autoTable(doc, {
+      doc.autoTable({
         startY: salesTableY + 5,
         head: [['Data', 'Sacas', 'Peso (kg)', 'Status']],
         body: (data.sales || []).map(s => [
