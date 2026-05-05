@@ -26,9 +26,17 @@ export default function AddSale() {
   };
 
   const handleSacasChange = (val) => {
-    setSacas(val);
-    const kg = val ? val * 60 : '';
-    setFormData({...formData, quantity: kg});
+    const s = val;
+    const kg = s ? (s * 60).toFixed(2) : '';
+    setSacas(s);
+    setFormData({ ...formData, quantity: kg });
+  };
+
+  const handleWeightChange = (val) => {
+    const kg = val;
+    const s = kg ? (kg / 60).toFixed(2) : '';
+    setSacas(s);
+    setFormData({ ...formData, quantity: kg });
   };
 
   const handleSubmit = async (e) => {
@@ -104,6 +112,7 @@ export default function AddSale() {
                 <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl px-4 py-4">
                   <input 
                     type="number" 
+                    step="0.01"
                     className="w-full bg-transparent outline-none text-sm font-black text-slate-700 placeholder:text-slate-200" 
                     placeholder="0"
                     value={sacas}
@@ -129,13 +138,6 @@ export default function AddSale() {
         </div>
 
         <button type="submit" className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-lg shadow-emerald-200 active:scale-95 transition-all">
-          Confirmar Venda
-        </button>
-      </form>
-    </div>
-  );
-}
->
           Confirmar Venda
         </button>
       </form>
