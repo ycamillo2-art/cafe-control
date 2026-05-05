@@ -8,10 +8,6 @@ export default function ProducerDetail() {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [id]);
-
   const fetchData = async () => {
     try {
       const res = await api.get(`/producers/${id}`);
@@ -20,6 +16,10 @@ export default function ProducerDetail() {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [id]);
 
   const handleEditItem = async (type, item) => {
     if (type === 'guides') {

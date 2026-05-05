@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Leaf, Settings, Box, DollarSign, Plus, ShoppingCart, Users } from 'lucide-react';
+import { Leaf, Settings, Box, Plus, ShoppingCart, Users } from 'lucide-react';
 import api from '../utils/api';
 
 export default function Dashboard() {
@@ -10,10 +10,6 @@ export default function Dashboard() {
     sold: 0,
     balance: 0
   });
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const fetchData = () => {
     api.get('/producers').then(res => {
@@ -31,6 +27,10 @@ export default function Dashboard() {
       console.error('Erro ao carregar totais:', err);
     });
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">

@@ -12,10 +12,6 @@ export default function ProducerList() {
   const [newName, setNewName] = useState('');
   const [editingId, setEditingId] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -27,6 +23,10 @@ export default function ProducerList() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleAdd = async (e) => {
     e.preventDefault();
