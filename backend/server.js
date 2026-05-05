@@ -17,6 +17,63 @@ app.get('/api/health', (req, res) => {
  res.send('API is healthy');
 });
 
+app.get('/api/seed', async (req, res) => {
+  try {
+    const producerNames = [
+      'João da Silva', 'Maria Oliveira', 'José Santos', 'Ana Souza', 'Pedro Costa',
+      'Francisca Ferreira', 'Antônio Rodrigues', 'Adriana Almeida', 'Carlos Gomes', 'Sônia Lima'
+    ];
+
+    await db('sales').del();
+    await db('guides').del();
+    await db('producers').del();
+
+    const producers = [];
+    for (const name of producerNames) {
+      const [idObj] = await db('producers').insert({ name }).returning('id');
+      const id = typeof idObj === 'object' ? idObj.id : idObj;
+      producers.push({ id, name });
+    }
+
+    for (let i = 0; i < 10; i++) {
+      const producer = producers[i % producers.length];
+      const weight_mature = Math.floor(Math.random() * 1000) + 500;
+      const weight_milled = Math.floor(weight_mature * (Math.random() * 0.2 + 0.15));
+      
+      await db('guides').insert({
+        guide_number: `G2026-${String(i + 1).padStart(3, '0')}`,
+        date: '2026-05-01',
+        producer_id: producer.id,
+        weight_mature,
+        weight_milled,
+        yield_pct: (weight_milled / weight_mature) * 100,
+        status: 'FINALIZADO'
+      });
+    }
+
+    for (let i = 0; i < 10; i++) {
+      const producer = producers[i % producers.length];
+      const guides = await db('guides').where({ producer_id: producer.id, status: 'FINALIZADO' });
+      const totalMilled = guides.reduce((acc, g) => acc + Number(g.weight_milled), 0);
+      const quantity = Math.floor(totalMilled * 0.5);
+      
+      if (quantity > 0) {
+        const price_per_kg = Math.floor(Math.random() * 5) + 15;
+        await db('sales').insert({
+          date: '2026-05-04',
+          producer_id: producer.id,
+          quantity,
+          price_per_kg,
+          total_value: quantity * price_per_kg
+        });
+      }
+    }
+    res.send('Seed finalizado com sucesso! Pode voltar ao dashboard.');
+  } catch (err) {
+    res.status(500).send('Erro no seed: ' + err.message);
+  }
+});
+
 // ... (existing routes will be kept, but I'll add the catch-all for React)
 
 // AFTER all API routes
