@@ -7,7 +7,6 @@ export default function UpdateGuide() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [guide, setGuide] = useState(null);
-  const [weightMilled, setWeightMilled] = useState('');
 
   useEffect(() => {
     // Para simplificar, buscamos todos os produtores e achamos a guia
