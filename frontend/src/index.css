@@ -1,29 +1,45 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #1a4d2e; /* Verde escuro Conilon */
+  --color-brand-secondary: #4f3422; /* Marrom Café */
+  --color-brand-light: #f8fafc;
+}
 
 body {
-  @apply bg-gray-50 text-gray-900;
+  @apply bg-slate-50 text-slate-900 font-sans;
 }
 
 .card {
-  @apply bg-white p-4 rounded-xl shadow-sm border border-gray-100;
+  @apply bg-white p-6 rounded-2xl shadow-sm border border-slate-100;
 }
 
-.btn-primary {
-  @apply bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold active:bg-blue-700 transition-colors text-center;
+.label-title {
+  @apply text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block;
 }
 
-.btn-secondary {
-  @apply bg-white text-gray-700 border border-gray-300 px-4 py-3 rounded-lg font-semibold active:bg-gray-100 transition-colors text-center;
+.input-container {
+  @apply relative flex items-center bg-white border border-slate-200 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all;
 }
 
-.input-field {
-  @apply w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none;
+.input-icon {
+  @apply w-5 h-5 text-slate-400 mr-3;
+}
+
+.input-field-custom {
+  @apply w-full bg-transparent outline-none text-slate-700 placeholder:text-slate-300;
+}
+
+.btn-brand {
+  @apply flex items-center justify-center gap-2 bg-brand-secondary text-white px-6 py-4 rounded-xl font-black uppercase tracking-wider active:scale-[0.98] transition-all shadow-md hover:shadow-lg;
+}
+
+.section-title {
+  @apply text-xl font-black uppercase tracking-tight text-slate-800 flex items-center gap-2;
 }
 
 @media print {
-  nav, header, button, .btn-secondary {
+  nav, header, button {
     display: none !important;
   }
   body {
