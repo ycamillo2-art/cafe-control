@@ -94,9 +94,12 @@ export default function ProducerDetail() {
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { margin: 1.5cm; }
-          .no-print { display: none !important; }
+          footer, .no-print { display: none !important; }
           .print-only { display: block !important; }
           body { background: white !important; padding: 0 !important; font-size: 12pt !important; }
+          /* Esconder URLs e rodapés automáticos do navegador */
+          a[href]:after { content: none !important; }
+          abbr[title]:after { content: none !important; }
           .shadow-sm, .shadow-lg, .shadow-xl { shadow: none !important; box-shadow: none !important; }
           .rounded-3xl, .rounded-xl { border-radius: 0 !important; border: 1px solid #eee !important; }
           .bg-emerald-600, .bg-blue-600, .bg-slate-800, .bg-[#603813] { 
