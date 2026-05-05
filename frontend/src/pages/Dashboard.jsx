@@ -1,92 +1,120 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, ChevronRight, Plus } from 'lucide-react';
+import { Leaf, Settings, Box, DollarSign, Plus, ShoppingCart, Users } from 'lucide-react';
 import api from '../utils/api';
 
 export default function Dashboard() {
-  const [producers, setProducers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [newProducerName, setNewProducerName] = useState('');
-  const [showAdd, setShowAdd] = useState(false);
+  const [totals, setTotals] = useState({
+    mature: 0,
+    milled: 0,
+    sold: 0,
+    balance: 0
+  });
 
   useEffect(() => {
-    fetchProducers();
+    api.get('/producers').then(res => {
+      const prods = res.data;
+      const sum = prods.reduce((acc, p) => ({
+        mature: acc.mature + (p.total_mature || 0),
+        milled: acc.milled + (p.total_milled || 0),
+        sold: acc.sold + (p.total_sold || 0),
+        balance: acc.balance + (p.balance || 0)
+      }), { mature: 0, milled: 0, sold: 0, balance: 0 });
+      setTotals(sum);
+    });
   }, []);
-
-  const fetchProducers = async () => {
-    try {
-      const res = await api.get('/producers');
-      setProducers(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddProducer = async (e) => {
-    e.preventDefault();
-    if (!newProducerName) return;
-    try {
-      await api.post('/producers', { name: newProducerName });
-      setNewProducerName('');
-      setShowAdd(false);
-      fetchProducers();
-    } catch (err) {
-      alert('Erro ao adicionar produtor');
-    }
-  };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">Produtores</h1>
-        <button 
-          onClick={() => setShowAdd(!showAdd)}
-          className="p-2 bg-emerald-600 text-white rounded-full shadow-lg active:scale-95 transition-transform"
-        >
-          <Plus className="w-6 h-6" />
-        </button>
+      <div className="space-y-1">
+        <h2 className="text-xl font-bold text-slate-800">Olá, Admin!</h2>
+        <p className="text-sm text-slate-400 font-medium tracking-tight">Bem-vindo ao sistema</p>
       </div>
 
-      {showAdd && (
-        <form onSubmit={handleAddProducer} className="card flex gap-2 animate-in fade-in slide-in-from-top-4">
-          <input
-            type="text"
-            placeholder="Nome do produtor"
-            className="input-field flex-1"
-            value={newProducerName}
-            onChange={(e) => setNewProducerName(e.target.value)}
-            autoFocus
-          />
-          <button type="submit" className="btn-primary py-2 px-4">Salvar</button>
-        </form>
-      )}
-
-      {loading ? (
-        <div className="text-center py-10 text-gray-500">Carregando...</div>
-      ) : (
-        <div className="grid gap-4">
-          {producers.length === 0 ? (
-            <p className="text-center text-gray-500 py-10">Nenhum produtor cadastrado.</p>
-          ) : (
-            producers.map((p) => (
-              <Link to={`/producer/${p.id}`} key={p.id} className="card flex items-center justify-between active:bg-gray-50">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700">
-                    <Users className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-800 text-lg">{p.name}</h3>
-                    <p className="text-sm text-gray-500">Saldo: <span className="font-semibold text-emerald-600">{p.balance} kg</span></p>
-                  </div>
-                </div>
-                <ChevronRight className="text-gray-400" />
-              </Link>
-            ))
-          )}
+      <div className="space-y-3">
+        <div className="card-summary bg-[#2d6a4f]">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+              <Leaf className="w-7 h-7" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-wider opacity-80">Total Recebido (Maduro)</p>
+              <p className="text-2xl font-black leading-none">{totals.mature.toLocaleString('pt-BR')} kg</p>
+            </div>
+          </div>
         </div>
-      )}
+
+        <div className="card-summary bg-[#603813]">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+              <Settings className="w-7 h-7" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-wider opacity-80">Total Pilado (Rendimento)</p>
+              <p className="text-2xl font-black leading-none">{totals.milled.toLocaleString('pt-BR')} kg</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="card-summary bg-[#1d4ed8]">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+              <Box className="w-7 h-7" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-wider opacity-80">Estoque Atual (Pilado)</p>
+              <p className="text-2xl font-black leading-none">{totals.balance.toLocaleString('pt-BR')} kg</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="card-summary bg-[#dc2626]">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+              <DollarSign className="w-7 h-7" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-wider opacity-80">Total Vendido</p>
+              <p className="text-2xl font-black leading-none">{totals.sold.toLocaleString('pt-BR')} kg</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Ações Rápidas</p>
+        <div className="grid grid-cols-3 gap-3">
+          <Link to="/add-guide" className="btn-action">
+            <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+              <Plus className="w-7 h-7" />
+            </div>
+            <div className="text-center">
+              <p className="text-[10px] font-black text-slate-800 leading-none">Nova Entrada</p>
+              <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">Registrar café</p>
+            </div>
+          </Link>
+
+          <Link to="/add-sale" className="btn-action">
+            <div className="w-12 h-12 bg-[#603813] rounded-full flex items-center justify-center text-white shadow-lg shadow-amber-900/20">
+              <ShoppingCart className="w-6 h-6" />
+            </div>
+            <div className="text-center">
+              <p className="text-[10px] font-black text-slate-800 leading-none">Nova Venda</p>
+              <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">Vender café</p>
+            </div>
+          </Link>
+
+          <Link to="/producers" className="btn-action">
+            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-200">
+              <Users className="w-6 h-6" />
+            </div>
+            <div className="text-center">
+              <p className="text-[10px] font-black text-slate-800 leading-none">Produtores</p>
+              <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">Ver relatório</p>
+            </div>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

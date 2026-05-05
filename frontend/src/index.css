@@ -1,53 +1,48 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-  --color-brand-primary: #1a4d2e; /* Verde escuro Conilon */
-  --color-brand-secondary: #4f3422; /* Marrom Café */
-  --color-brand-light: #f8fafc;
+@layer base {
+  body {
+    @apply bg-[#f8f9fa] text-slate-900 font-sans antialiased;
+  }
 }
 
-body {
-  @apply bg-slate-50 text-slate-900 font-sans;
-}
+@layer components {
+  .card-summary {
+    @apply flex items-center justify-between p-4 rounded-xl text-white shadow-sm transition-transform active:scale-95;
+  }
+  
+  .btn-action {
+    @apply flex flex-col items-center gap-2 p-4 bg-white rounded-2xl shadow-sm border border-slate-100 active:bg-slate-50 transition-all;
+  }
 
-.card {
-  @apply bg-white p-6 rounded-2xl shadow-sm border border-slate-100;
-}
+  .section-header {
+    @apply flex items-center gap-2 border-b border-slate-200 pb-2 mb-4;
+  }
 
-.label-title {
-  @apply text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block;
-}
+  .section-title {
+    @apply text-[11px] font-black uppercase tracking-widest text-slate-800;
+  }
 
-.input-container {
-  @apply relative flex items-center bg-white border border-slate-200 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all;
-}
+  .table-header {
+    @apply text-[9px] font-bold text-slate-400 uppercase tracking-wider py-2;
+  }
 
-.input-icon {
-  @apply w-5 h-5 text-slate-400 mr-3;
-}
-
-.input-field-custom {
-  @apply w-full bg-transparent outline-none text-slate-700 placeholder:text-slate-300;
-}
-
-.btn-brand {
-  @apply flex items-center justify-center gap-2 bg-brand-secondary text-white px-6 py-4 rounded-xl font-black uppercase tracking-wider active:scale-[0.98] transition-all shadow-md hover:shadow-lg;
-}
-
-.section-title {
-  @apply text-xl font-black uppercase tracking-tight text-slate-800 flex items-center gap-2;
+  .table-cell {
+    @apply py-3 border-t border-slate-50 text-[11px] font-bold text-slate-700;
+  }
 }
 
 @media print {
-  nav, header, button {
+  nav, header, button, .no-print {
     display: none !important;
   }
   body {
     background: white;
   }
   .card {
-    border: 1px solid #eee;
-    box-shadow: none;
-    break-inside: avoid;
+    border: 1px solid #eee !important;
+    box-shadow: none !important;
   }
 }

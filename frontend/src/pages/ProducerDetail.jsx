@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, FileText, TrendingUp, ShoppingBag, Clock, CheckCircle } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, FileText, Leaf, Settings, DollarSign, Box } from 'lucide-react';
 import api from '../utils/api';
 
 export default function ProducerDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,124 +24,138 @@ export default function ProducerDetail() {
     }
   };
 
-  if (loading) return <div className="text-center py-10">Carregando...</div>;
-  if (!data) return <div className="text-center py-10">Produtor não encontrado.</div>;
+  if (loading) return <div className="text-center py-20 text-[10px] font-black text-slate-300 uppercase">Carregando...</div>;
+  if (!data) return <div className="text-center py-20">Produtor não encontrado.</div>;
 
   const { summary, guides, sales } = data;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link to="/" className="p-2 -ml-2 text-gray-600">
-          <ArrowLeft />
-        </Link>
-        <h1 className="text-2xl font-bold text-gray-800">{data.name}</h1>
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate('/producers')} className="p-2 -ml-2 text-slate-400">
+            <ArrowLeft />
+          </button>
+          <div>
+            <h1 className="text-xl font-black text-slate-800 uppercase tracking-tighter leading-none">{data.name}</h1>
+            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Código: {String(data.id).padStart(3, '0')}</p>
+          </div>
+        </div>
+        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-3 bg-[#2d6a4f] text-white rounded-xl font-black uppercase text-[10px] tracking-tight">
+          <FileText className="w-4 h-4" />
+          Gerar Relatório (PDF)
+        </button>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="card bg-blue-50 border-blue-100 p-4">
-          <p className="text-xs text-blue-600 font-bold uppercase tracking-wider mb-1">Total Recebido</p>
-          <p className="text-2xl font-black text-blue-800">{summary.total_mature} <span className="text-sm font-medium">kg</span></p>
-        </div>
-        <div className="card bg-emerald-50 border-emerald-100 p-4">
-          <p className="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-1">Total Pilado</p>
-          <p className="text-2xl font-black text-emerald-800">{summary.total_milled} <span className="text-sm font-medium">kg</span></p>
-        </div>
-        <div className="card bg-orange-50 border-orange-100 p-4">
-          <p className="text-xs text-orange-600 font-bold uppercase tracking-wider mb-1">Total Vendido</p>
-          <p className="text-2xl font-black text-orange-800">{summary.total_sold} <span className="text-sm font-medium">kg</span></p>
-        </div>
-        <div className="card bg-purple-50 border-purple-100 p-4">
-          <p className="text-xs text-purple-600 font-bold uppercase tracking-wider mb-1">Saldo Atual</p>
-          <p className="text-2xl font-black text-purple-800">{summary.balance} <span className="text-sm font-medium">kg</span></p>
-        </div>
-      </div>
-
-      {/* Tabs / Sections */}
       <div className="space-y-4">
-        <div className="flex items-center gap-2 text-gray-800 font-bold text-lg border-b pb-2">
-          <FileText className="w-5 h-5" />
-          <h2>Entradas (Guias)</h2>
+        <div className="section-header">
+          <div className="w-1 h-3 bg-emerald-600 rounded-full" />
+          <h2 className="section-title">Resumo Geral</h2>
         </div>
-        <div className="space-y-3">
-          {guides.length === 0 ? (
-            <p className="text-sm text-gray-500">Nenhuma entrada registrada.</p>
-          ) : (
-            guides.map(g => (
-              <div key={g.id} className="card relative overflow-hidden">
-                <div className={`absolute left-0 top-0 bottom-0 w-1 ${g.status === 'FINALIZADO' ? 'bg-emerald-500' : 'bg-orange-500'}`} />
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <span className="text-xs font-bold text-gray-400">GUIA #{g.guide_number}</span>
-                    <p className="text-sm text-gray-500">{new Date(g.date).toLocaleDateString('pt-BR')}</p>
-                  </div>
-                  <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${g.status === 'FINALIZADO' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'}`}>
-                    {g.status}
-                  </span>
-                </div>
-                <div className="flex justify-between items-end">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-[10px] text-gray-400 uppercase font-bold">Maduro</p>
-                      <p className="font-bold text-gray-700">{g.weight_mature} kg</p>
-                    </div>
-                    {g.status === 'FINALIZADO' && (
-                      <div>
-                        <p className="text-[10px] text-gray-400 uppercase font-bold">Pilado</p>
-                        <p className="font-bold text-emerald-700">{g.weight_milled} kg</p>
-                      </div>
-                    )}
-                  </div>
-                  {g.status === 'PENDENTE' && (
-                    <Link to={`/update-guide/${g.id}`} className="text-xs bg-gray-100 text-gray-700 px-3 py-2 rounded-lg font-bold active:bg-gray-200">
-                      Finalizar Pilagem
-                    </Link>
-                  )}
-                  {g.status === 'FINALIZADO' && (
-                    <div className="text-right">
-                      <p className="text-[10px] text-gray-400 uppercase font-bold">Rend.</p>
-                      <p className="font-bold text-emerald-700">{Number(g.yield_pct).toFixed(1)}%</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <Leaf className="w-4 h-4 text-emerald-600" />
+              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Total Recebido (Maduro)</p>
+            </div>
+            <p className="text-lg font-black text-emerald-800 leading-none">{(summary.total_mature || 0).toLocaleString('pt-BR')} kg</p>
+          </div>
+          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <Settings className="w-4 h-4 text-[#603813]" />
+              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Total Pilado (Rendimento)</p>
+            </div>
+            <p className="text-lg font-black text-[#603813] leading-none">{(summary.total_milled || 0).toLocaleString('pt-BR')} kg</p>
+          </div>
+          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <DollarSign className="w-4 h-4 text-red-600" />
+              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Total Vendido</p>
+            </div>
+            <p className="text-lg font-black text-red-700 leading-none">{(summary.total_sold || 0).toLocaleString('pt-BR')} kg</p>
+          </div>
+          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <Box className="w-4 h-4 text-blue-600" />
+              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Saldo Atual (Pilado)</p>
+            </div>
+            <p className="text-lg font-black text-blue-800 leading-none">{(summary.balance || 0).toLocaleString('pt-BR')} kg</p>
+          </div>
         </div>
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center gap-2 text-gray-800 font-bold text-lg border-b pb-2">
-          <ShoppingBag className="w-5 h-5" />
-          <h2>Vendas</h2>
+        <div className="section-header">
+          <div className="w-1 h-3 bg-amber-800 rounded-full" />
+          <h2 className="section-title">Entradas de Café</h2>
         </div>
-        <div className="space-y-3">
-          {sales.length === 0 ? (
-            <p className="text-sm text-gray-500">Nenhuma venda registrada.</p>
-          ) : (
-            sales.map(s => (
-              <div key={s.id} className="card">
-                <div className="flex justify-between items-start mb-2">
-                  <p className="text-sm text-gray-500">{new Date(s.date).toLocaleDateString('pt-BR')}</p>
-                  <p className="font-bold text-orange-700">R$ {Number(s.total_value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <p className="text-gray-600 font-medium">{s.quantity} kg <span className="text-xs text-gray-400">@ R$ {s.price_per_kg}/kg</span></p>
-                </div>
-              </div>
-            ))
-          )}
+        <div className="bg-white rounded-3xl p-5 border border-slate-50 shadow-sm overflow-hidden">
+          <table className="w-full text-left">
+            <thead>
+              <tr>
+                <th className="table-header">Guia</th>
+                <th className="table-header">Data</th>
+                <th className="table-header">Peso Maduro</th>
+                <th className="table-header">Peso Pilado</th>
+                <th className="table-header text-right">Rendimento</th>
+              </tr>
+            </thead>
+            <tbody>
+              {guides.length === 0 ? (
+                <tr><td colSpan="5" className="py-10 text-center text-[10px] font-bold text-slate-300 italic">Sem registros</td></tr>
+              ) : (
+                guides.map(g => (
+                  <tr key={g.id} onClick={() => g.status === 'PENDENTE' && navigate(`/update-guide/${g.id}`)}>
+                    <td className="table-cell">{g.guide_number}</td>
+                    <td className="table-cell">{new Date(g.date).toLocaleDateString('pt-BR')}</td>
+                    <td className="table-cell">{g.weight_mature.toLocaleString('pt-BR')} kg</td>
+                    <td className="table-cell">{g.weight_milled ? `${g.weight_milled.toLocaleString('pt-BR')} kg` : <span className="text-amber-600 italic">Pendente</span>}</td>
+                    <td className="table-cell text-right font-black text-emerald-700">{g.yield_pct ? `${Number(g.yield_pct).toFixed(1)}%` : '-'}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
-      
-      <button 
-        onClick={() => window.print()} 
-        className="btn-secondary w-full flex items-center justify-center gap-2"
-      >
-        <FileText className="w-5 h-5" />
-        Gerar Relatório (PDF)
-      </button>
+
+      <div className="space-y-4">
+        <div className="section-header">
+          <div className="w-1 h-3 bg-red-600 rounded-full" />
+          <h2 className="section-title">Vendas Realizadas</h2>
+        </div>
+        <div className="bg-white rounded-3xl p-5 border border-slate-50 shadow-sm overflow-hidden">
+          <table className="w-full text-left">
+            <thead>
+              <tr>
+                <th className="table-header">Data</th>
+                <th className="table-header">Quantidade</th>
+                <th className="table-header text-right">Valor Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sales.length === 0 ? (
+                <tr><td colSpan="3" className="py-10 text-center text-[10px] font-bold text-slate-300 italic">Sem registros</td></tr>
+              ) : (
+                sales.map(s => (
+                  <tr key={s.id}>
+                    <td className="table-cell">{new Date(s.date).toLocaleDateString('pt-BR')}</td>
+                    <td className="table-cell font-black">{s.quantity.toLocaleString('pt-BR')} kg</td>
+                    <td className="table-cell text-right font-black text-red-600">R$ {Number(s.total_value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="flex items-start gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+        <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center text-slate-400 font-bold text-[10px]">i</div>
+        <p className="text-[10px] font-bold text-slate-400 leading-tight">
+          Valores de rendimento calculados com base no peso pilado inserido após o processamento da carga.
+        </p>
+      </div>
     </div>
   );
 }
