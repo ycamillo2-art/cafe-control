@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home } from 'lucide-react';
 import api from '../utils/api';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 export default function ProducerDetail() {
   const { id } = useParams();
@@ -107,7 +107,7 @@ export default function ProducerDetail() {
 
       // Guides Table
       doc.text('ENTRADAS DE CAFÉ', 20, 85);
-      doc.autoTable({
+      autoTable(doc, {
         startY: 90,
         head: [['Guia', 'Data', 'Peso Maduro', 'Sacas Piladas', 'Peso Pilado']],
         body: data.guides.map(g => [
@@ -121,7 +121,7 @@ export default function ProducerDetail() {
 
       // Sales Table
       doc.text('VENDAS REALIZADAS', 20, doc.lastAutoTable.finalY + 15);
-      doc.autoTable({
+      autoTable(doc, {
         startY: doc.lastAutoTable.finalY + 20,
         head: [['Data', 'Sacas', 'Peso (kg)', 'Status']],
         body: data.sales.map(s => [
@@ -158,7 +158,7 @@ export default function ProducerDetail() {
         <div className="flex items-center gap-2">
           <button onClick={() => navigate('/')} className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-xl text-slate-600 font-black text-[10px] uppercase active:bg-slate-200 transition-colors">
             <Home className="w-4 h-4" />
-            Início
+            Inicio
           </button>
           {!data.harvest_finished_at ? (
             <button 

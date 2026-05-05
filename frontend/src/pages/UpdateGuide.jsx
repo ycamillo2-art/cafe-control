@@ -36,7 +36,7 @@ export default function UpdateGuide() {
         </div>
         <button onClick={() => navigate('/')} className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-xl text-slate-600 font-black text-[10px] uppercase active:bg-slate-200 transition-colors">
           <Home className="w-4 h-4" />
-          Início
+          Inicio
         </button>
       </div>
 
