@@ -149,13 +149,6 @@ export default function ProducerDetail() {
           </table>
         </div>
       </div>
-
-      <div className="flex items-start gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-        <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center text-slate-400 font-bold text-[10px]">i</div>
-        <p className="text-[10px] font-bold text-slate-400 leading-tight">
-          Valores de rendimento calculados com base no peso pilado inserido após o processamento da carga.
-        </p>
-      </div>
     </div>
   );
 }
