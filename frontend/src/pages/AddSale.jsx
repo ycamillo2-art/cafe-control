@@ -24,6 +24,14 @@ export default function AddSale() {
     setFormData({...formData, producer_id: id});
   };
 
+  const [sacas, setSacas] = useState('');
+
+  const handleSacasChange = (val) => {
+    setSacas(val);
+    const kg = val ? val * 60 : '';
+    setFormData({...formData, quantity: kg});
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.producer_id || !formData.quantity || !formData.price_per_kg) {
@@ -32,6 +40,7 @@ export default function AddSale() {
     }
     try {
       await api.post('/sales', formData);
+      alert('Venda registrada com sucesso!');
       navigate(`/producer/${formData.producer_id}`);
     } catch (err) {
       alert(err.response?.data?.error || 'Erro ao registrar venda');
@@ -73,7 +82,7 @@ export default function AddSale() {
               {selectedProducer && (
                 <div className="mt-2 flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                  <p className="text-[10px] font-black text-emerald-700 uppercase">Saldo disponível: {selectedProducer.balance} kg</p>
+                  <p className="text-[10px] font-black text-emerald-700 uppercase">Saldo disponível: {selectedProducer.balance.toLocaleString('pt-BR')} kg</p>
                 </div>
               )}
             </div>
@@ -91,18 +100,29 @@ export default function AddSale() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Quantidade (kg)</label>
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Quantidade (Sacas)</label>
                 <div className="relative flex items-center bg-red-50 border border-red-100 rounded-2xl px-4 py-4">
-                  <Weight className="w-5 h-5 text-red-600 mr-3" />
+                  <ShoppingBag className="w-5 h-5 text-red-600 mr-3" />
                   <input 
                     type="number" 
-                    step="0.01"
                     className="w-full bg-transparent outline-none text-sm font-black text-red-900 placeholder:text-red-200" 
-                    placeholder="0,00"
+                    placeholder="0"
+                    value={sacas}
+                    onChange={e => handleSacasChange(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Total em kg (Automatico)</label>
+                <div className="relative flex items-center bg-slate-50 border border-slate-100 rounded-2xl px-4 py-4">
+                  <Weight className="w-5 h-5 text-slate-300 mr-3" />
+                  <input 
+                    type="number" 
+                    readOnly
+                    className="w-full bg-transparent outline-none text-sm font-black text-slate-500" 
                     value={formData.quantity}
-                    onChange={e => setFormData({...formData, quantity: e.target.value})}
                   />
                 </div>
               </div>

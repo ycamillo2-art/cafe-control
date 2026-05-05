@@ -107,6 +107,28 @@ app.post('/api/producers', async (req, res) => {
   }
 });
 
+app.patch('/api/producers/:id', async (req, res) => {
+  try {
+    const { name } = req.body;
+    await db('producers').where({ id: req.params.id }).update({ name });
+    res.json({ message: 'Produtor atualizado' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/producers/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db('sales').where({ producer_id: id }).del();
+    await db('guides').where({ producer_id: id }).del();
+    await db('producers').where({ id }).del();
+    res.json({ message: 'Produtor e todos os dados relacionados foram excluídos' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/producers/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -157,16 +179,34 @@ app.post('/api/guides', async (req, res) => {
 app.patch('/api/guides/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { weight_milled } = req.body;
+    const { weight_milled, weight_mature, guide_number, date } = req.body;
     const guide = await db('guides').where({ id }).first();
     if (!guide) return res.status(404).json({ error: 'Guide not found' });
-    const yield_pct = (weight_milled / guide.weight_mature) * 100;
-    await db('guides').where({ id }).update({
-      weight_milled,
-      yield_pct,
-      status: 'FINALIZADO'
-    });
-    res.json({ message: 'Guide updated successfully' });
+    
+    const updateData = {};
+    if (weight_mature !== undefined) updateData.weight_mature = weight_mature;
+    if (weight_milled !== undefined) updateData.weight_milled = weight_milled;
+    if (guide_number !== undefined) updateData.guide_number = guide_number;
+    if (date !== undefined) updateData.date = date;
+
+    if (updateData.weight_mature !== undefined || updateData.weight_milled !== undefined) {
+      const finalMature = updateData.weight_mature !== undefined ? updateData.weight_mature : guide.weight_mature;
+      const finalMilled = updateData.weight_milled !== undefined ? updateData.weight_milled : guide.weight_milled;
+      updateData.yield_pct = finalMature > 0 ? (finalMilled / finalMature) * 100 : 0;
+      updateData.status = 'FINALIZADO';
+    }
+
+    await db('guides').where({ id }).update(updateData);
+    res.json({ message: 'Guia atualizada com sucesso' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/guides/:id', async (req, res) => {
+  try {
+    await db('guides').where({ id: req.params.id }).del();
+    res.json({ message: 'Guia excluída' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -199,39 +239,26 @@ app.post('/api/sales', async (req, res) => {
   }
 });
 
-// Catch-all to serve index.html for React Router
-app.use((req, res) => {
-  if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
-  }
-});
-
-app.patch('/api/producers/:id', async (req, res) => {
-  try {
-    const { name } = req.body;
-    await db('producers').where({ id: req.params.id }).update({ name });
-    res.json({ message: 'Produtor atualizado' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.delete('/api/producers/:id', async (req, res) => {
+app.patch('/api/sales/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await db('sales').where({ producer_id: id }).del();
-    await db('guides').where({ producer_id: id }).del();
-    await db('producers').where({ id }).del();
-    res.json({ message: 'Produtor e todos os dados relacionados foram excluídos' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    const { quantity, price_per_kg, date } = req.body;
+    const sale = await db('sales').where({ id }).first();
+    if (!sale) return res.status(404).json({ error: 'Sale not found' });
 
-app.delete('/api/guides/:id', async (req, res) => {
-  try {
-    await db('guides').where({ id: req.params.id }).del();
-    res.json({ message: 'Guia excluída' });
+    const updateData = {};
+    if (quantity !== undefined) updateData.quantity = quantity;
+    if (price_per_kg !== undefined) updateData.price_per_kg = price_per_kg;
+    if (date !== undefined) updateData.date = date;
+
+    if (updateData.quantity !== undefined || updateData.price_per_kg !== undefined) {
+      const finalQty = updateData.quantity !== undefined ? updateData.quantity : sale.quantity;
+      const finalPrice = updateData.price_per_kg !== undefined ? updateData.price_per_kg : sale.price_per_kg;
+      updateData.total_value = finalQty * finalPrice;
+    }
+
+    await db('sales').where({ id }).update(updateData);
+    res.json({ message: 'Venda atualizada com sucesso' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -246,7 +273,14 @@ app.delete('/api/sales/:id', async (req, res) => {
   }
 });
 
-// Start Server - Build trigger: 1777956600
+// Catch-all to serve index.html for React Router
+app.use((req, res) => {
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+  }
+});
+
+// Start Server - Build trigger: 1777956601
 initDb().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

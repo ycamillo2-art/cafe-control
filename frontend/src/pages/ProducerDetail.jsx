@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Leaf, Settings, DollarSign, Box, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileText, Leaf, Settings, DollarSign, Box, Trash2, Edit2 } from 'lucide-react';
 import api from '../utils/api';
 
 export default function ProducerDetail() {
@@ -18,6 +18,42 @@ export default function ProducerDetail() {
       setData(res.data);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleEditItem = async (type, item) => {
+    if (type === 'guides') {
+      const newMature = prompt('Novo Peso Maduro (kg):', item.weight_mature);
+      if (newMature === null) return;
+      const newMilled = prompt('Novo Peso Pilado (kg):', item.weight_milled || 0);
+      if (newMilled === null) return;
+      
+      try {
+        await api.patch(`/guides/${item.id}`, { 
+          weight_mature: parseFloat(newMature), 
+          weight_milled: parseFloat(newMilled) 
+        });
+        alert('Entrada atualizada!');
+        fetchData();
+      } catch (err) {
+        alert('Erro ao atualizar.');
+      }
+    } else {
+      const newSacas = prompt('Nova Quantidade (Sacas):', item.quantity / 60);
+      if (newSacas === null) return;
+      const newPrice = prompt('Novo Preço por kg (R$):', item.price_per_kg);
+      if (newPrice === null) return;
+
+      try {
+        await api.patch(`/sales/${item.id}`, { 
+          quantity: parseFloat(newSacas) * 60, 
+          price_per_kg: parseFloat(newPrice) 
+        });
+        alert('Venda atualizada!');
+        fetchData();
+      } catch (err) {
+        alert('Erro ao atualizar.');
+      }
     }
   };
 
@@ -112,12 +148,20 @@ export default function ProducerDetail() {
                     <td className="table-cell">{g.weight_milled ? `${Number(g.weight_milled).toLocaleString('pt-BR')} kg` : '-'}</td>
                     <td className="table-cell text-emerald-600 font-black">{g.yield_pct ? `${Number(g.yield_pct).toFixed(1)}%` : '-'}</td>
                     <td className="table-cell text-right">
-                      <button 
-                        onClick={() => handleDeleteItem('guides', g.id)}
-                        className="p-1.5 text-slate-200 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex gap-1 justify-end">
+                        <button 
+                          onClick={() => handleEditItem('guides', g)}
+                          className="p-1.5 text-slate-200 hover:text-blue-500 transition-colors"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteItem('guides', g.id)}
+                          className="p-1.5 text-slate-200 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -138,7 +182,8 @@ export default function ProducerDetail() {
               <thead>
                 <tr className="table-header">
                   <th className="pb-4">Dados</th>
-                  <th className="pb-4">Quantidade</th>
+                  <th className="pb-4">Sacas</th>
+                  <th className="pb-4">Peso (kg)</th>
                   <th className="pb-4">Valor Total</th>
                   <th className="pb-4"></th>
                 </tr>
@@ -147,15 +192,24 @@ export default function ProducerDetail() {
                 {sales.map(s => (
                   <tr key={s.id} className="group">
                     <td className="table-cell">{new Date(s.date).toLocaleDateString('pt-BR')}</td>
+                    <td className="table-cell">{(Number(s.quantity) / 60).toFixed(1)}</td>
                     <td className="table-cell">{Number(s.quantity).toLocaleString('pt-BR')} kg</td>
                     <td className="table-cell text-red-600 font-black">R$ {Number(s.total_value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                     <td className="table-cell text-right">
-                      <button 
-                        onClick={() => handleDeleteItem('sales', s.id)}
-                        className="p-1.5 text-slate-200 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex gap-1 justify-end">
+                        <button 
+                          onClick={() => handleEditItem('sales', s)}
+                          className="p-1.5 text-slate-200 hover:text-blue-500 transition-colors"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteItem('sales', s.id)}
+                          className="p-1.5 text-slate-200 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
