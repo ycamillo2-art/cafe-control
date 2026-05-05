@@ -10,7 +10,7 @@
 
 @layer components {
   .card-summary {
-    @apply flex items-center justify-between p-4 rounded-xl text-white shadow-sm transition-transform active:scale-95;
+    @apply flex items-center justify-between p-6 rounded-[2rem] text-white shadow-sm transition-transform active:scale-95;
   }
   
   .btn-action {

@@ -25,92 +25,75 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-1">
-        <h2 className="text-xl font-bold text-slate-800">Olá, Admin!</h2>
-        <p className="text-sm text-slate-400 font-medium tracking-tight">Bem-vindo ao sistema</p>
-      </div>
-
-      <div className="space-y-3">
-        <div className="card-summary bg-[#2d6a4f]">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <Leaf className="w-7 h-7" />
+    <div className="space-y-8 max-w-2xl mx-auto py-6">
+      <div className="grid grid-cols-1 gap-4">
+        <div className="card-summary bg-[#603813] h-28">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
+              <Settings className="w-8 h-8 text-white" />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-wider opacity-80">Total Recebido (Maduro)</p>
-              <p className="text-2xl font-black leading-none">{totals.mature.toLocaleString('pt-BR')} kg</p>
+              <p className="text-[12px] font-black uppercase tracking-widest opacity-90">Total Pilado (Rendimento)</p>
+              <p className="text-4xl font-black leading-tight">{totals.milled.toLocaleString('pt-BR')} kg</p>
             </div>
           </div>
         </div>
 
-        <div className="card-summary bg-[#603813]">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <Settings className="w-7 h-7" />
+        <div className="card-summary bg-[#1d4ed8] h-28">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
+              <Box className="w-8 h-8 text-white" />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-wider opacity-80">Total Pilado (Rendimento)</p>
-              <p className="text-2xl font-black leading-none">{totals.milled.toLocaleString('pt-BR')} kg</p>
+              <p className="text-[12px] font-black uppercase tracking-widest opacity-90">Estoque Atual (Pilado)</p>
+              <p className="text-4xl font-black leading-tight">{totals.balance.toLocaleString('pt-BR')} kg</p>
             </div>
           </div>
         </div>
 
-        <div className="card-summary bg-[#1d4ed8]">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <Box className="w-7 h-7" />
+        <div className="card-summary bg-[#dc2626] h-28">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
+              <DollarSign className="w-8 h-8 text-white" />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-wider opacity-80">Estoque Atual (Pilado)</p>
-              <p className="text-2xl font-black leading-none">{totals.balance.toLocaleString('pt-BR')} kg</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="card-summary bg-[#dc2626]">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <DollarSign className="w-7 h-7" />
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-wider opacity-80">Total Vendido</p>
-              <p className="text-2xl font-black leading-none">{totals.sold.toLocaleString('pt-BR')} kg</p>
+              <p className="text-[12px] font-black uppercase tracking-widest opacity-90">Total Vendido</p>
+              <p className="text-4xl font-black leading-tight">{totals.sold.toLocaleString('pt-BR')} kg</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="space-y-4">
-        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Ações Rápidas</p>
-        <div className="grid grid-cols-3 gap-3">
-          <Link to="/add-guide" className="btn-action">
-            <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-200">
-              <Plus className="w-7 h-7" />
+      <div className="space-y-6 pt-4">
+        <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em] text-center md:text-left">Ações</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link to="/add-guide" className="btn-action !bg-transparent !border-none !shadow-none hover:opacity-80">
+            <div className="w-16 h-16 bg-[#00a86b] rounded-full flex items-center justify-center text-white shadow-xl shadow-emerald-100">
+              <Plus className="w-9 h-9" />
             </div>
             <div className="text-center">
-              <p className="text-[10px] font-black text-slate-800 leading-none">Nova Entrada</p>
-              <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">Registrar café</p>
+              <p className="text-[12px] font-black text-slate-800 leading-none">Nova Entrada</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase mt-1">Café do Registrador</p>
             </div>
           </Link>
 
-          <Link to="/add-sale" className="btn-action">
-            <div className="w-12 h-12 bg-[#603813] rounded-full flex items-center justify-center text-white shadow-lg shadow-amber-900/20">
-              <ShoppingCart className="w-6 h-6" />
+          <Link to="/add-sale" className="btn-action !bg-transparent !border-none !shadow-none hover:opacity-80">
+            <div className="w-16 h-16 bg-[#603813] rounded-full flex items-center justify-center text-white shadow-xl shadow-amber-900/20">
+              <ShoppingCart className="w-8 h-8" />
             </div>
             <div className="text-center">
-              <p className="text-[10px] font-black text-slate-800 leading-none">Nova Venda</p>
-              <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">Vender café</p>
+              <p className="text-[12px] font-black text-slate-800 leading-none">Nova Venda</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase mt-1">Café do Vendedor</p>
             </div>
           </Link>
 
-          <Link to="/producers" className="btn-action">
-            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-200">
-              <Users className="w-6 h-6" />
+          <Link to="/producers" className="btn-action !bg-transparent !border-none !shadow-none hover:opacity-80">
+            <div className="w-16 h-16 bg-[#1d4ed8] rounded-full flex items-center justify-center text-white shadow-xl shadow-blue-100">
+              <Users className="w-8 h-8" />
             </div>
             <div className="text-center">
-              <p className="text-[10px] font-black text-slate-800 leading-none">Produtores</p>
-              <p className="text-[8px] font-bold text-slate-400 uppercase mt-1">Ver relatório</p>
+              <p className="text-[12px] font-black text-slate-800 leading-none">Produtores</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase mt-1">Ver relatório</p>
             </div>
           </Link>
         </div>
