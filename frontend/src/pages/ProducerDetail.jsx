@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home } from 'lucide-react';
+import { ArrowLeft, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home, Warehouse } from 'lucide-react';
 import api from '../utils/api';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default function ProducerDetail() {
   const { id } = useParams();
@@ -86,80 +86,87 @@ export default function ProducerDetail() {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
 
-      // Header Branding
+      // Header
       doc.setFontSize(10);
       doc.setTextColor(150);
-      doc.text('RD - CONTROLE DE CAFÉ', 20, 10);
-      doc.text(new Date().toLocaleDateString('pt-BR'), pageWidth - 20, 10, { align: 'right' });
+      doc.text('RD - CONTROLE DE CAFÉ', 14, 15);
+      doc.text(new Date().toLocaleDateString('pt-BR'), pageWidth - 14, 15, { align: 'right' });
 
       // Title
       doc.setFontSize(18);
       doc.setTextColor(40);
-      doc.text('EXTRATO DO PRODUTOR', pageWidth / 2, 25, { align: 'center' });
+      doc.text('EXTRATO DO PRODUTOR', pageWidth / 2, 30, { align: 'center' });
       doc.setFontSize(14);
-      doc.text((data.name || '').toUpperCase(), pageWidth / 2, 35, { align: 'center' });
+      doc.text((data.name || '').toUpperCase(), pageWidth / 2, 40, { align: 'center' });
 
-      // Summary
+      // Summary Box
+      doc.setDrawColor(200);
+      doc.rect(14, 50, pageWidth - 28, 35);
       doc.setFontSize(11);
-      doc.setTextColor(60);
-      doc.text('RESUMO GERAL', 20, 50);
-      doc.setLineWidth(0.5);
-      doc.line(20, 52, 60, 52);
-
+      doc.setFont('helvetica', 'bold');
+      doc.text('RESUMO DA CONTA', 20, 58);
+      
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
-      doc.text(`Total Maduro: ${(data.summary?.total_mature || 0).toLocaleString('pt-BR')} kg`, 20, 60);
-      doc.text(`Total Pilado: ${(data.summary?.total_milled || 0).toLocaleString('pt-BR')} kg (${((data.summary?.total_milled || 0) / 60).toFixed(1)} sacas)`, 20, 67);
-      doc.text(`Total Vendido: ${(data.summary?.total_sold || 0).toLocaleString('pt-BR')} kg (${((data.summary?.total_sold || 0) / 60).toFixed(1)} sacas)`, 20, 74);
+      doc.text(`Total Maduro: ${(data.summary?.total_mature || 0).toLocaleString('pt-BR')} kg`, 20, 68);
+      doc.text(`Total Pilado: ${(data.summary?.total_milled || 0).toLocaleString('pt-BR')} kg (${((data.summary?.total_milled || 0) / 60).toFixed(1)} sacas)`, 20, 75);
+      doc.text(`Total Vendido: ${(data.summary?.total_sold || 0).toLocaleString('pt-BR')} kg (${((data.summary?.total_sold || 0) / 60).toFixed(1)} sacas)`, 20, 82);
       
       doc.setFont('helvetica', 'bold');
-      doc.text(`SALDO DISPONÍVEL: ${(data.summary?.balance || 0).toLocaleString('pt-BR')} kg (${((data.summary?.balance || 0) / 60).toFixed(1)} sacas)`, 20, 84);
-      doc.setFont('helvetica', 'normal');
+      doc.text(`SALDO ATUAL: ${(data.summary?.balance || 0).toLocaleString('pt-BR')} kg (${((data.summary?.balance || 0) / 60).toFixed(1)} sacas)`, 140, 82, { align: 'right' });
+
+      let currentY = 100;
 
       if (data.harvest_finished_at) {
         doc.setTextColor(200, 0, 0);
-        doc.text(`SAFRA FINALIZADA EM: ${new Date(data.harvest_finished_at).toLocaleDateString('pt-BR')}`, 20, 92);
-        doc.setTextColor(60);
+        doc.text(`SAFRA FINALIZADA EM: ${new Date(data.harvest_finished_at).toLocaleDateString('pt-BR')}`, 14, 95);
+        currentY = 105;
       }
 
       // Guides Table
-      doc.setFontSize(11);
-      doc.text('ENTRADAS DE CAFÉ', 20, 105);
-      doc.autoTable({
-        startY: 110,
-        head: [['Guia', 'Data', 'Status', 'Maduro', 'Pilado (kg)', 'Sacas']],
+      doc.setTextColor(40);
+      doc.setFontSize(12);
+      doc.text('ENTRADAS DE CAFÉ', 14, currentY);
+      
+      autoTable(doc, {
+        startY: currentY + 5,
+        head: [['Guia', 'Data', 'Status', 'Maduro (kg)', 'Pilado (kg)', 'Sacas']],
         body: (data.guides || []).map(g => [
           g.guide_number,
           new Date(g.date).toLocaleDateString('pt-BR'),
           g.status,
-          `${Number(g.weight_mature || 0).toLocaleString('pt-BR')} kg`,
-          g.weight_milled ? `${Number(g.weight_milled).toLocaleString('pt-BR')} kg` : '-',
+          `${Number(g.weight_mature || 0).toLocaleString('pt-BR')}`,
+          g.weight_milled ? `${Number(g.weight_milled).toLocaleString('pt-BR')}` : '-',
           g.weight_milled ? (Number(g.weight_milled) / 60).toFixed(1) : '-'
         ]),
+        theme: 'striped',
         headStyles: { fillColor: [16, 185, 129] },
-        alternateRowStyles: { fillColor: [245, 255, 250] }
+        styles: { fontSize: 9 }
       });
 
       // Sales Table
-      const nextY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 15 : 160;
-      doc.setFontSize(11);
-      doc.text('VENDAS REALIZADAS', 20, nextY);
-      doc.autoTable({
-        startY: nextY + 5,
-        head: [['Data', 'Tipo', 'Quantidade (kg)', 'Sacas']],
+      const salesY = doc.lastAutoTable.finalY + 15;
+      doc.setFontSize(12);
+      doc.text('VENDAS REALIZADAS', 14, salesY);
+      
+      autoTable(doc, {
+        startY: salesY + 5,
+        head: [['Data', 'Tipo', 'Peso (kg)', 'Sacas']],
         body: (data.sales || []).map(s => [
           new Date(s.date).toLocaleDateString('pt-BR'),
           s.is_post_harvest ? 'PÓS-SAFRA' : 'SAFRA',
-          `${Number(s.quantity || 0).toLocaleString('pt-BR')} kg`,
+          `${Number(s.quantity || 0).toLocaleString('pt-BR')}`,
           (Number(s.quantity || 0) / 60).toFixed(1)
         ]),
+        theme: 'striped',
         headStyles: { fillColor: [220, 38, 38] },
-        alternateRowStyles: { fillColor: [255, 245, 245] }
+        styles: { fontSize: 9 }
       });
 
       doc.save(`extrato-${(data.name || 'produtor').toLowerCase().replace(/\s+/g, '-')}.pdf`);
     } catch (error) {
       console.error('Erro PDF:', error);
-      alert('Erro técnico ao gerar o PDF. Tente atualizar a página.');
+      alert('Erro ao gerar PDF. Verifique os dados e tente novamente.');
     }
   };
 
