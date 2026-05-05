@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home, Warehouse } from 'lucide-react';
 import api from '../utils/api';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 export default function ProducerDetail() {
@@ -166,7 +166,7 @@ export default function ProducerDetail() {
       doc.save(`extrato-${(data.name || 'produtor').toLowerCase().replace(/\s+/g, '-')}.pdf`);
     } catch (error) {
       console.error('Erro PDF:', error);
-      alert('Erro ao gerar PDF. Verifique os dados e tente novamente.');
+      alert('Erro ao gerar PDF: ' + (error.message || 'Erro desconhecido'));
     }
   };
 

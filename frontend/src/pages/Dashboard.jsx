@@ -12,9 +12,13 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = () => {
     api.get('/producers').then(res => {
       const producers = res.data;
-      if (producers && producers.length > 0) {
+      if (producers) {
         const t = producers.reduce((acc, p) => ({
           mature: acc.mature + (Number(p.total_mature) || 0),
           milled: acc.milled + (Number(p.total_milled) || 0),
@@ -26,7 +30,7 @@ export default function Dashboard() {
     }).catch(err => {
       console.error('Erro ao carregar totais:', err);
     });
-  }, []);
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
