@@ -1,24 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, Weight, Hash, Calendar, Home } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Weight, Home } from 'lucide-react';
+import api from '../utils/api';
 
 export default function UpdateGuide() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    weight_milled: '',
-    status: 'FINALIZADO'
-  });
+  const [guide, setGuide] = useState(null);
+  const [sacas, setSacas] = useState('');
+  const [weightMilled, setWeightMilled] = useState('');
+
+  useEffect(() => {
+    api.get(`/guides/${id}`).then(res => {
+      setGuide(res.data);
+    }).catch(err => {
+      console.error(err);
+      alert('Erro ao carregar guia');
+    });
+  }, [id]);
+
+  const handleSacasChange = (val) => {
+    setSacas(val);
+    const kg = val ? val * 60 : '';
+    setWeightMilled(kg);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.weight_milled) {
-      alert('Informe o peso pilado');
+    if (!weightMilled) {
+      alert('Informe a quantidade de sacas');
       return;
     }
     try {
-      await api.patch(`/guides/${id}`, formData);
-      alert('Guia pilada com sucesso!');
+      await api.patch(`/guides/${id}`, { weight_milled: parseFloat(weightMilled) });
+      alert('Guia finalizada com sucesso!');
       navigate(-1);
     } catch (err) {
       alert('Erro ao atualizar guia');
@@ -56,7 +71,7 @@ export default function UpdateGuide() {
                 </div>
                 <div>
                   <label className="text-[8px] font-black text-slate-400 uppercase">Peso Maduro</label>
-                  <p className="text-[11px] font-black text-slate-700">{guide.weight_mature} kg</p>
+                  <p className="text-[11px] font-black text-slate-700">{Number(guide.weight_mature).toLocaleString('pt-BR')} kg</p>
                 </div>
               </div>
             )}
@@ -68,6 +83,7 @@ export default function UpdateGuide() {
                   <Weight className="w-6 h-6 text-emerald-600 mr-3" />
                   <input 
                     type="number" 
+                    step="0.01"
                     className="w-full bg-transparent outline-none text-2xl font-black text-emerald-900 placeholder:text-emerald-200"
                     placeholder="0"
                     autoFocus

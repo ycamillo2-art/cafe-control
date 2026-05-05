@@ -163,6 +163,16 @@ app.get('/api/producers/:id', async (req, res) => {
 });
 
 // Guides
+app.get('/api/guides/:id', async (req, res) => {
+  try {
+    const guide = await db('guides').where({ id: req.params.id }).first();
+    if (!guide) return res.status(404).json({ error: 'Guide not found' });
+    res.json(guide);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post('/api/guides', async (req, res) => {
   try {
     const { guide_number, date, producer_id, weight_mature } = req.body;
@@ -300,7 +310,7 @@ app.use((req, res) => {
   }
 });
 
-// Start Server - Build trigger: 1777996123
+// Start Server - Build trigger: 1777998243
 initDb().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

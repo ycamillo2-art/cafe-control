@@ -253,13 +253,30 @@ export default function ProducerDetail() {
               <tbody className="divide-y divide-slate-50">
                 {guides.map(g => (
                   <tr key={g.id} className="group hover:bg-slate-50/50 transition-colors">
-                    <td className="py-4 text-xs font-bold text-slate-700">{g.guide_number}</td>
+                    <td className="py-4 text-xs font-bold text-slate-700">
+                      <div className="flex items-center gap-2">
+                        {g.status === 'PENDENTE' ? (
+                          <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" title="Pendente" />
+                        ) : (
+                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" title="Finalizado" />
+                        )}
+                        {g.guide_number}
+                      </div>
+                    </td>
                     <td className="py-4 text-xs font-bold text-slate-500">{new Date(g.date).toLocaleDateString('pt-BR')}</td>
                     <td className="py-4 text-xs font-black text-slate-800 text-right">{Number(g.weight_mature).toLocaleString('pt-BR')} kg</td>
                     <td className="py-4 text-xs font-black text-emerald-600 text-right">{g.weight_milled ? (Number(g.weight_milled) / 60).toFixed(1) : '-'}</td>
                     <td className="py-4 text-xs font-bold text-slate-700 text-right">{g.weight_milled ? `${Number(g.weight_milled).toLocaleString('pt-BR')} kg` : '-'}</td>
                     <td className="py-4 text-right">
                       <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                        {g.status === 'PENDENTE' && (
+                          <button 
+                            onClick={() => navigate(`/update-guide/${g.id}`)}
+                            className="px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-emerald-200 transition-colors"
+                          >
+                            Finalizar
+                          </button>
+                        )}
                         <button onClick={() => handleEditItem('guides', g)} className="p-1.5 text-slate-300 hover:text-blue-500"><Edit2 className="w-3.5 h-3.5" /></button>
                         <button onClick={() => handleDeleteItem('guides', g.id)} className="p-1.5 text-slate-300 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
                       </div>
