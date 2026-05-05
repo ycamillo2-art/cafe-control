@@ -117,12 +117,12 @@ export default function ProducerDetail() {
 
       {/* Cabeçalho exclusivo para impressão */}
       <div className="print-only mb-10 border-b-4 border-emerald-600 pb-6">
-        <div className="flex justify-between items-end">
-          <div className="flex items-center gap-4">
-            <img src="https://sc01.alicdn.com/kf/Ab1d5f68f57e14024a5f9a93453a2ab73I.png" alt="RD Logo" className="w-16 h-auto" />
-            <div>
-              <h1 className="text-4xl font-black uppercase leading-none">RD - Controle de Café</h1>
-              <p className="text-sm font-bold uppercase tracking-widest text-slate-400 mt-1">Soluções em Gestão Cafeeira</p>
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-6">
+            <img src="https://sc01.alicdn.com/kf/Ab1d5f68f57e14024a5f9a93453a2ab73I.png" alt="RD Logo" className="h-24 w-auto object-contain" />
+            <div className="flex flex-col justify-center">
+              <h1 className="text-4xl font-black uppercase leading-[0.8]">RD - Controle de Café</h1>
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400 mt-2">Soluções em Gestão Cafeeira</p>
             </div>
           </div>
           <div className="text-right">

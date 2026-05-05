@@ -20,9 +20,9 @@ function App() {
         <header className="bg-white px-4 py-8 sticky top-0 z-50">
           <div className="max-w-6xl mx-auto flex flex-col items-center justify-center w-full relative">
             <Link to="/" className="flex flex-col items-center gap-1 outline-none text-center">
-              <div className="flex items-center gap-4 leading-none">
-                <img src="https://sc01.alicdn.com/kf/Ab1d5f68f57e14024a5f9a93453a2ab73I.png" alt="RD Conilon Logo" className="h-16 w-auto" />
-                <span className="text-3xl font-black text-slate-800 tracking-tighter uppercase">RD - CONTROLE DE CAFÉ</span>
+              <div className="flex items-center gap-6 leading-none">
+                <img src="https://sc01.alicdn.com/kf/Ab1d5f68f57e14024a5f9a93453a2ab73I.png" alt="RD Conilon Logo" className="h-20 w-auto object-contain" />
+                <span className="text-4xl font-black text-slate-800 tracking-tighter uppercase">RD - CONTROLE DE CAFÉ</span>
               </div>
               <span className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.3em] mt-1">Sistema Atualizado v2.0</span>
             </Link>
