@@ -134,8 +134,8 @@ export default function ProducerDetail() {
                   <th className="pb-4">Guia</th>
                   <th className="pb-4">Dados</th>
                   <th className="pb-4">Peso Maduro</th>
-                  <th className="pb-4">Peso Pilado</th>
-                  <th className="pb-4">Rendimento</th>
+                  <th className="pb-4">Sacas Piladas</th>
+                  <th className="pb-4">Peso (kg)</th>
                   <th className="pb-4"></th>
                 </tr>
               </thead>
@@ -145,8 +145,8 @@ export default function ProducerDetail() {
                     <td className="table-cell">{g.guide_number}</td>
                     <td className="table-cell">{new Date(g.date).toLocaleDateString('pt-BR')}</td>
                     <td className="table-cell">{Number(g.weight_mature).toLocaleString('pt-BR')} kg</td>
-                    <td className="table-cell">{g.weight_milled ? `${Number(g.weight_milled).toLocaleString('pt-BR')} kg` : '-'}</td>
-                    <td className="table-cell text-emerald-600 font-black">{g.yield_pct ? `${Number(g.yield_pct).toFixed(1)}%` : '-'}</td>
+                    <td className="table-cell text-emerald-600 font-black">{g.weight_milled ? (Number(g.weight_milled) / 60).toFixed(1) : '-'}</td>
+                    <td className="table-cell font-bold">{g.weight_milled ? `${Number(g.weight_milled).toLocaleString('pt-BR')} kg` : '-'}</td>
                     <td className="table-cell text-right">
                       <div className="flex gap-1 justify-end">
                         <button 

@@ -34,7 +34,10 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Total Pilado (Rendimento)</p>
-              <p className="text-2xl md:text-3xl font-black leading-tight">{totals.milled.toLocaleString('pt-BR')} kg</p>
+              <p className="text-2xl md:text-3xl font-black leading-tight">
+                {totals.milled.toLocaleString('pt-BR')} kg
+                <span className="text-sm font-bold opacity-60 ml-2">({(totals.milled / 60).toFixed(1)} sacas)</span>
+              </p>
             </div>
           </div>
         </div>
@@ -46,7 +49,10 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Estoque Atual (Pilado)</p>
-              <p className="text-2xl md:text-3xl font-black leading-tight">{totals.balance.toLocaleString('pt-BR')} kg</p>
+              <p className="text-2xl md:text-3xl font-black leading-tight">
+                {totals.balance.toLocaleString('pt-BR')} kg
+                <span className="text-sm font-bold opacity-60 ml-2">({(totals.balance / 60).toFixed(1)} sacas)</span>
+              </p>
             </div>
           </div>
         </div>
@@ -58,7 +64,10 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Total Vendido</p>
-              <p className="text-2xl md:text-3xl font-black leading-tight">{totals.sold.toLocaleString('pt-BR')} kg</p>
+              <p className="text-2xl md:text-3xl font-black leading-tight">
+                {totals.sold.toLocaleString('pt-BR')} kg
+                <span className="text-sm font-bold opacity-60 ml-2">({(totals.sold / 60).toFixed(1)} sacas)</span>
+              </p>
             </div>
           </div>
         </div>
