@@ -119,7 +119,7 @@ export default function ProducerDetail() {
       <div className="print-only mb-10 border-b-4 border-emerald-600 pb-6">
         <div className="flex justify-between items-end">
           <div className="flex items-center gap-4">
-            <Leaf className="w-12 h-12 text-emerald-600" />
+            <img src="https://sc01.alicdn.com/kf/Ab1d5f68f57e14024a5f9a93453a2ab73I.png" alt="RD Logo" className="w-16 h-auto" />
             <div>
               <h1 className="text-4xl font-black uppercase leading-none">RD - Controle de Café</h1>
               <p className="text-sm font-bold uppercase tracking-widest text-slate-400 mt-1">Soluções em Gestão Cafeeira</p>
@@ -184,7 +184,7 @@ export default function ProducerDetail() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <Leaf className="w-5 h-5 text-emerald-600" />
@@ -200,14 +200,6 @@ export default function ProducerDetail() {
           </div>
           <p className="text-2xl font-black text-slate-800 leading-none">{(summary.total_milled || 0).toLocaleString('pt-BR')} kg</p>
           <p className="text-[10px] font-bold text-slate-400 mt-2">{(summary.total_milled / 60).toFixed(1)} sacas</p>
-        </div>
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <DollarSign className="w-5 h-5 text-red-600" />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Vendido</p>
-          </div>
-          <p className="text-2xl font-black text-slate-800 leading-none">{(summary.total_sold || 0).toLocaleString('pt-BR')} kg</p>
-          <p className="text-[10px] font-bold text-slate-400 mt-2">{(summary.total_sold / 60).toFixed(1)} sacas</p>
         </div>
         <div className="bg-blue-600 p-6 rounded-3xl shadow-xl shadow-blue-100">
           <div className="flex items-center gap-3 mb-3">

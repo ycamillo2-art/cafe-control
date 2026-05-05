@@ -34,7 +34,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Total Recebido */}
         <div className="bg-emerald-600 p-6 rounded-[2.5rem] shadow-xl shadow-emerald-100 text-white relative overflow-hidden group">
           <Leaf className="absolute -right-4 -bottom-4 w-24 h-24 opacity-10 group-hover:scale-110 transition-transform" />
@@ -64,23 +64,6 @@ export default function Dashboard() {
               <p className="text-2xl md:text-3xl font-black leading-tight flex items-baseline gap-2">
                 {totals.milled.toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
                 <span className="text-xs font-bold opacity-60">({(totals.milled / 60).toFixed(1)} sc)</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Total Vendido */}
-        <div className="bg-red-600 p-6 rounded-[2.5rem] shadow-xl shadow-red-100 text-white relative overflow-hidden group">
-          <DollarSign className="absolute -right-4 -bottom-4 w-24 h-24 opacity-10 group-hover:scale-110 transition-transform" />
-          <div className="relative z-10 space-y-4">
-            <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Total Vendido</p>
-              <p className="text-2xl md:text-3xl font-black leading-tight flex items-baseline gap-2">
-                {totals.sold.toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
-                <span className="text-xs font-bold opacity-60">({(totals.sold / 60).toFixed(1)} sc)</span>
               </p>
             </div>
           </div>
