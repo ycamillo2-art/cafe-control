@@ -163,7 +163,7 @@ app.post('/api/sales', async (req, res) => {
 });
 
 // Catch-all to serve index.html for React Router
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
   if (!req.path.startsWith('/api')) {
     res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
   }
