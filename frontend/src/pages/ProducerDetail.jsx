@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home } from 'lucide-react';
 import api from '../utils/api';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default function ProducerDetail() {
   const { id } = useParams();
@@ -84,11 +84,9 @@ export default function ProducerDetail() {
   const generatePDF = () => {
     console.log('Iniciando geração de PDF...');
     try {
-      // Usando o construtor padrão que é mais compatível
       const doc = new jsPDF('p', 'mm', 'a4');
       const pageWidth = doc.internal.pageSize.getWidth();
 
-      // Teste simples para ver se o PDF inicia
       doc.setFontSize(20);
       doc.text('EXTRATO DO PRODUTOR', pageWidth / 2, 20, { align: 'center' });
       
@@ -105,24 +103,19 @@ export default function ProducerDetail() {
       doc.text(`Total Vendido: ${(data.summary?.total_sold || 0).toLocaleString('pt-BR')} kg`, 14, 76);
       doc.text(`SALDO ATUAL: ${(data.summary?.balance || 0).toLocaleString('pt-BR')} kg`, 14, 83);
 
-      // Tabela de Entradas usando autoTable de forma global se possível ou via import
-      if (typeof doc.autoTable === 'function') {
-        doc.autoTable({
-          startY: 95,
-          head: [['Guia', 'Data', 'Status', 'Maduro (kg)', 'Pilado (kg)']],
-          body: (data.guides || []).map(g => [
-            g.guide_number,
-            new Date(g.date).toLocaleDateString('pt-BR'),
-            g.status,
-            `${Number(g.weight_mature || 0).toLocaleString('pt-BR')}`,
-            g.weight_milled ? `${Number(g.weight_milled).toLocaleString('pt-BR')}` : '-'
-          ]),
-          headStyles: { fillColor: [16, 185, 129] }
-        });
-      } else {
-        // Fallback se autoTable falhar
-        doc.text('Tabela de Entradas (AutoTable não carregado)', 14, 95);
-      }
+      // Tabela de Entradas
+      autoTable(doc, {
+        startY: 95,
+        head: [['Guia', 'Data', 'Status', 'Maduro (kg)', 'Pilado (kg)']],
+        body: (data.guides || []).map(g => [
+          g.guide_number,
+          new Date(g.date).toLocaleDateString('pt-BR'),
+          g.status,
+          `${Number(g.weight_mature || 0).toLocaleString('pt-BR')}`,
+          g.weight_milled ? `${Number(g.weight_milled).toLocaleString('pt-BR')}` : '-'
+        ]),
+        headStyles: { fillColor: [16, 185, 129] }
+      });
 
       const fileName = `extrato-${(data.name || 'relatorio').toLowerCase().replace(/\s+/g, '-')}.pdf`;
       doc.save(fileName);
