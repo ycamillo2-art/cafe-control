@@ -11,21 +11,29 @@ export default function Dashboard() {
     balance: 0
   });
 
-  const fetchData = () => {
-    api.get('/producers').then(res => {
+  const fetchData = async () => {
+    try {
+      const res = await api.get('/producers');
       const producers = res.data;
-      if (producers) {
-        const t = producers.reduce((acc, p) => ({
-          mature: acc.mature + (Number(p.total_mature) || 0),
-          milled: acc.milled + (Number(p.total_milled) || 0),
-          sold: acc.sold + (Number(p.total_sold) || 0),
-          balance: acc.balance + (Number(p.balance) || 0)
-        }), { mature: 0, milled: 0, sold: 0, balance: 0 });
-        setTotals(t);
+      
+      if (Array.isArray(producers)) {
+        let mature = 0;
+        let milled = 0;
+        let sold = 0;
+        let balance = 0;
+
+        producers.forEach(p => {
+          mature += Number(p.total_mature) || 0;
+          milled += Number(p.total_milled) || 0;
+          sold += Number(p.total_sold) || 0;
+          balance += Number(p.balance) || 0;
+        });
+
+        setTotals({ mature, milled, sold, balance });
       }
-    }).catch(err => {
+    } catch (err) {
       console.error('Erro ao carregar totais:', err);
-    });
+    }
   };
 
   useEffect(() => {
@@ -45,8 +53,8 @@ export default function Dashboard() {
             <div>
               <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Total Recebido (Maduro)</p>
               <p className="text-2xl md:text-3xl font-black leading-tight flex items-baseline gap-2">
-                {totals.mature.toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
-                <span className="text-xs font-bold opacity-60">({(totals.mature / 60).toFixed(1)} sc)</span>
+                {(totals.mature || 0).toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
+                <span className="text-xs font-bold opacity-60">({((totals.mature || 0) / 60).toFixed(1)} sc)</span>
               </p>
             </div>
           </div>
@@ -62,8 +70,8 @@ export default function Dashboard() {
             <div>
               <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Total Pilado (Rendimento)</p>
               <p className="text-2xl md:text-3xl font-black leading-tight flex items-baseline gap-2">
-                {totals.milled.toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
-                <span className="text-xs font-bold opacity-60">({(totals.milled / 60).toFixed(1)} sc)</span>
+                {(totals.milled || 0).toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
+                <span className="text-xs font-bold opacity-60">({((totals.milled || 0) / 60).toFixed(1)} sc)</span>
               </p>
             </div>
           </div>
@@ -79,8 +87,8 @@ export default function Dashboard() {
             <div>
               <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Estoque Atual (Pilado)</p>
               <p className="text-2xl md:text-3xl font-black leading-tight flex items-baseline gap-2">
-                {totals.balance.toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
-                <span className="text-xs font-bold opacity-60">({(totals.balance / 60).toFixed(1)} sc)</span>
+                {(totals.balance || 0).toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
+                <span className="text-xs font-bold opacity-60">({((totals.balance || 0) / 60).toFixed(1)} sc)</span>
               </p>
             </div>
           </div>
