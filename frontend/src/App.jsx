@@ -8,6 +8,12 @@ import AddSale from './pages/AddSale';
 import UpdateGuide from './pages/UpdateGuide';
 
 function App() {
+  const handleExit = () => {
+    alert('Salvando alterações...');
+    window.location.href = "about:blank";
+    window.close();
+  };
+
   return (
     <Router>
       <div className="min-h-screen flex flex-col bg-white">
@@ -20,7 +26,10 @@ function App() {
               </div>
               <span className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.3em] mt-1">Sistema Atualizado v2.0</span>
             </Link>
-            <button className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-4 py-2 border border-red-100 rounded-xl text-red-600 font-black text-[10px] uppercase active:bg-red-50 transition-colors">
+            <button 
+              onClick={handleExit}
+              className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-4 py-2 border border-red-100 rounded-xl text-red-600 font-black text-[10px] uppercase active:bg-red-50 transition-colors"
+            >
               <span className="w-2 h-2 bg-red-600 rounded-full" />
               Sair
             </button>

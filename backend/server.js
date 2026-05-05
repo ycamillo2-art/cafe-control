@@ -79,12 +79,16 @@ app.get('/api/producers', async (req, res) => {
   try {
     const producers = await db('producers').select('*');
     const result = await Promise.all(producers.map(async (p) => {
-      const guides = await db('guides').where({ producer_id: p.id, status: 'FINALIZADO' });
+      const guides = await db('guides').where({ producer_id: p.id });
       const sales = await db('sales').where({ producer_id: p.id });
-      const totalMilled = guides.reduce((acc, g) => acc + Number(g.weight_milled), 0);
+      
+      const totalMature = guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
+      const totalMilled = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
       const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
+
       return {
         ...p,
+        total_mature: totalMature,
         total_milled: totalMilled,
         total_sold: totalSold,
         balance: totalMilled - totalSold
@@ -212,25 +216,41 @@ app.delete('/api/guides/:id', async (req, res) => {
   }
 });
 
+app.post('/api/producers/:id/finish-harvest', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db('producers').where({ id }).update({ harvest_finished_at: new Date() });
+    res.json({ message: 'Safra finalizada com sucesso!' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Sales
 app.post('/api/sales', async (req, res) => {
   try {
     const { date, producer_id, quantity, price_per_kg } = req.body;
+    const producer = await db('producers').where({ id: producer_id }).first();
     const guides = await db('guides').where({ producer_id, status: 'FINALIZADO' });
     const sales = await db('sales').where({ producer_id });
     const totalMilled = guides.reduce((acc, g) => acc + Number(g.weight_milled), 0);
     const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
     const balance = totalMilled - totalSold;
+
     if (quantity > balance) {
       return res.status(400).json({ error: 'Insuficiente saldo em estoque' });
     }
+
     const total_value = quantity * price_per_kg;
+    const is_post_harvest = producer.harvest_finished_at !== null;
+
     const [idObj] = await db('sales').insert({
       date,
       producer_id,
       quantity,
       price_per_kg,
-      total_value
+      total_value,
+      is_post_harvest
     }).returning('id');
     const id = typeof idObj === 'object' ? idObj.id : idObj;
     res.status(201).json({ id });

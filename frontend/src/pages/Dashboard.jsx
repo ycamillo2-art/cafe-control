@@ -26,7 +26,22 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 py-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="card-summary bg-emerald-600 h-28 md:h-32">
+          <div className="flex items-center gap-4 md:gap-6">
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
+              <Leaf className="w-6 h-6 md:w-8 md:h-8 text-white" />
+            </div>
+            <div>
+              <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Total Recebido (Maduro)</p>
+              <p className="text-2xl md:text-3xl font-black leading-tight">
+                {totals.mature.toLocaleString('pt-BR')} kg
+                <span className="text-sm font-bold opacity-60 ml-2">({(totals.mature / 60).toFixed(1)} sacas)</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="card-summary bg-[#603813] h-28 md:h-32">
           <div className="flex items-center gap-4 md:gap-6">
             <div className="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
@@ -42,21 +57,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="card-summary bg-[#1d4ed8] h-28 md:h-32">
-          <div className="flex items-center gap-4 md:gap-6">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
-              <Box className="w-6 h-6 md:w-8 md:h-8 text-white" />
-            </div>
-            <div>
-              <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Estoque Atual (Pilado)</p>
-              <p className="text-2xl md:text-3xl font-black leading-tight">
-                {totals.balance.toLocaleString('pt-BR')} kg
-                <span className="text-sm font-bold opacity-60 ml-2">({(totals.balance / 60).toFixed(1)} sacas)</span>
-              </p>
-            </div>
-          </div>
-        </div>
-
         <div className="card-summary bg-[#dc2626] h-28 md:h-32">
           <div className="flex items-center gap-4 md:gap-6">
             <div className="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
@@ -67,6 +67,21 @@ export default function Dashboard() {
               <p className="text-2xl md:text-3xl font-black leading-tight">
                 {totals.sold.toLocaleString('pt-BR')} kg
                 <span className="text-sm font-bold opacity-60 ml-2">({(totals.sold / 60).toFixed(1)} sacas)</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="card-summary bg-[#1d4ed8] h-28 md:h-32">
+          <div className="flex items-center gap-4 md:gap-6">
+            <div className="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
+              <Box className="w-6 h-6 md:w-8 md:h-8 text-white" />
+            </div>
+            <div>
+              <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Estoque Atual (Pilado)</p>
+              <p className="text-2xl md:text-3xl font-black leading-tight">
+                {totals.balance.toLocaleString('pt-BR')} kg
+                <span className="text-sm font-bold opacity-60 ml-2">({(totals.balance / 60).toFixed(1)} sacas)</span>
               </p>
             </div>
           </div>

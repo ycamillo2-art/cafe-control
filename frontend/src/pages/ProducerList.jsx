@@ -123,14 +123,17 @@ export default function ProducerList() {
                   <div className="text-center">
                     <p className="text-[8px] font-bold text-slate-300 uppercase mb-0.5 tracking-wider">Recebido</p>
                     <p className="text-[10px] font-black text-slate-600">{(p.total_mature || 0).toLocaleString('pt-BR')} kg</p>
+                    <p className="text-[8px] font-bold text-slate-400">{(p.total_mature / 60).toFixed(1)} sc</p>
                   </div>
                   <div className="text-center">
                     <p className="text-[8px] font-bold text-slate-300 uppercase mb-0.5 tracking-wider">Pilado</p>
                     <p className="text-[10px] font-black text-slate-600">{(p.total_milled || 0).toLocaleString('pt-BR')} kg</p>
+                    <p className="text-[8px] font-bold text-slate-400">{(p.total_milled / 60).toFixed(1)} sc</p>
                   </div>
                   <div className="text-center">
                     <p className="text-[8px] font-bold text-slate-300 uppercase mb-0.5 tracking-wider">Vendido</p>
                     <p className="text-[10px] font-black text-slate-600">{(p.total_sold || 0).toLocaleString('pt-BR')} kg</p>
+                    <p className="text-[8px] font-bold text-slate-400">{(p.total_sold / 60).toFixed(1)} sc</p>
                   </div>
                 </div>
               </Link>

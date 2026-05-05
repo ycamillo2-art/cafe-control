@@ -25,7 +25,15 @@ async function initDb() {
     await db.schema.createTable('producers', table => {
       table.increments('id').primary();
       table.string('name').notNullable();
+      table.dateTime('harvest_finished_at').nullable();
     });
+  } else {
+    const hasColumn = await db.schema.hasColumn('producers', 'harvest_finished_at');
+    if (!hasColumn) {
+      await db.schema.table('producers', table => {
+        table.dateTime('harvest_finished_at').nullable();
+      });
+    }
   }
 
   const existsGuides = await db.schema.hasTable('guides');
@@ -52,8 +60,16 @@ async function initDb() {
       table.decimal('quantity').notNullable();
       table.decimal('price_per_kg').notNullable();
       table.decimal('total_value').notNullable();
+      table.boolean('is_post_harvest').defaultTo(false);
       table.timestamps(true, true);
     });
+  } else {
+    const hasColumn = await db.schema.hasColumn('sales', 'is_post_harvest');
+    if (!hasColumn) {
+      await db.schema.table('sales', table => {
+        table.boolean('is_post_harvest').defaultTo(false);
+      });
+    }
   }
 }
 
