@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, ChevronRight, Plus, Trash2, Edit2 } from 'lucide-react';
+import { ArrowLeft, Search, ChevronRight, Plus, Trash2, Edit2, Home } from 'lucide-react';
 import api from '../utils/api';
 
 export default function ProducerList() {
   const navigate = useNavigate();
   const [producers, setProducers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
-  const [editingId, setEditingId] = useState(null);
   const [newName, setNewName] = useState('');
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
-    fetchProducers();
+    fetchData();
   }, []);
 
-  const fetchProducers = async () => {
+  const fetchData = async () => {
+    setLoading(true);
     try {
       const res = await api.get('/producers');
       setProducers(res.data);
@@ -33,54 +34,61 @@ export default function ProducerList() {
     try {
       if (editingId) {
         await api.patch(`/producers/${editingId}`, { name: newName });
-        alert('Produtor atualizado com sucesso!');
+        alert('Produtor atualizado!');
       } else {
         await api.post('/producers', { name: newName });
-        alert('Produtor cadastrado com sucesso!');
+        alert('Produtor cadastrado!');
       }
       setNewName('');
       setShowAdd(false);
       setEditingId(null);
-      fetchProducers();
+      fetchData();
     } catch (err) {
-      alert('Erro ao salvar produtor.');
+      alert('Erro ao salvar produtor');
     }
+  };
+
+  const startEdit = (e, producer) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditingId(producer.id);
+    setNewName(producer.name);
+    setShowAdd(true);
   };
 
   const handleDelete = async (e, id, name) => {
     e.preventDefault();
     e.stopPropagation();
-    if (window.confirm(`Tem certeza que deseja excluir o produtor "${name}"? Isso apagará todas as entradas e vendas dele!`)) {
+    if (window.confirm(`Tem certeza que deseja excluir o produtor ${name} e todos os seus lançamentos?`)) {
       try {
         await api.delete(`/producers/${id}`);
-        alert('Produtor excluído com sucesso!');
-        fetchProducers();
+        fetchData();
       } catch (err) {
-        alert('Erro ao excluir produtor.');
+        alert('Erro ao excluir produtor');
       }
     }
   };
 
-  const startEdit = (e, p) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setNewName(p.name);
-    setEditingId(p.id);
-    setShowAdd(true);
-  };
-
-  const filtered = producers.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+  const filteredProducers = producers.filter(p => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <button onClick={() => navigate('/')} className="p-2 -ml-2 text-slate-400">
-          <ArrowLeft />
-        </button>
-        <div>
-          <h1 className="text-xl font-black text-slate-800 uppercase tracking-tighter">Produtores</h1>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Selecione um produtor para ver os detalhes</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate('/')} className="p-2 -ml-2 text-slate-400 hover:text-emerald-600 transition-colors">
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <div>
+            <h1 className="text-xl font-black text-slate-800 uppercase tracking-tighter">Relatório Geral</h1>
+            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-0.5">Gestão de Produtores</p>
+          </div>
         </div>
+        <button onClick={() => navigate('/')} className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-xl text-slate-600 font-black text-[10px] uppercase active:bg-slate-200 transition-colors">
+          <Home className="w-4 h-4" />
+          Início
+        </button>
       </div>
 
       <div className="relative">
@@ -89,8 +97,8 @@ export default function ProducerList() {
           type="text" 
           placeholder="Buscar produtor..." 
           className="w-full bg-white border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-sm"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
@@ -98,7 +106,7 @@ export default function ProducerList() {
         {loading ? (
           <div className="text-center py-10 text-[10px] font-black text-slate-300 uppercase">Carregando...</div>
         ) : (
-          filtered.map((p, idx) => (
+          filteredProducers.map((p) => (
             <div key={p.id} className="relative group">
               <Link to={`/producer/${p.id}`} className="block bg-white p-5 rounded-3xl border border-slate-50 shadow-sm active:bg-slate-50 transition-all">
                 <div className="flex items-center justify-between mb-4">
@@ -114,6 +122,7 @@ export default function ProducerList() {
                   <div className="flex items-center gap-2">
                     <div className="text-right leading-none">
                       <p className="text-[9px] font-black text-emerald-600 uppercase mb-0.5">Saldo: {p.balance.toLocaleString('pt-BR')} kg</p>
+                      <p className="text-[8px] font-bold text-slate-400 uppercase">{(p.balance / 60).toFixed(1)} sacas</p>
                     </div>
                     <ChevronRight className="w-4 h-4 text-slate-200" />
                   </div>

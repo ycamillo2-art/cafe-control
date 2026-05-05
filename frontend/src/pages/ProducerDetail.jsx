@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download } from 'lucide-react';
+import { ArrowLeft, FileText, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home } from 'lucide-react';
 import api from '../utils/api';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
 export default function ProducerDetail() {
@@ -82,56 +82,61 @@ export default function ProducerDetail() {
   };
 
   const generatePDF = () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Title
-    doc.setFontSize(18);
-    doc.text('EXTRATO DO PRODUTOR', pageWidth / 2, 20, { align: 'center' });
-    doc.setFontSize(14);
-    doc.text(data.name.toUpperCase(), pageWidth / 2, 30, { align: 'center' });
+      // Title
+      doc.setFontSize(18);
+      doc.text('EXTRATO DO PRODUTOR', pageWidth / 2, 20, { align: 'center' });
+      doc.setFontSize(14);
+      doc.text(data.name.toUpperCase(), pageWidth / 2, 30, { align: 'center' });
 
-    // Summary
-    doc.setFontSize(10);
-    doc.text(`Total Maduro: ${data.summary.total_mature.toLocaleString('pt-BR')} kg`, 20, 45);
-    doc.text(`Total Pilado: ${data.summary.total_milled.toLocaleString('pt-BR')} kg (${(data.summary.total_milled / 60).toFixed(1)} sacas)`, 20, 52);
-    doc.text(`Total Vendido: ${data.summary.total_sold.toLocaleString('pt-BR')} kg (${(data.summary.total_sold / 60).toFixed(1)} sacas)`, 20, 59);
-    doc.text(`SALDO ATUAL: ${data.summary.balance.toLocaleString('pt-BR')} kg (${(data.summary.balance / 60).toFixed(1)} sacas)`, 20, 66);
+      // Summary
+      doc.setFontSize(10);
+      doc.text(`Total Maduro: ${data.summary.total_mature.toLocaleString('pt-BR')} kg`, 20, 45);
+      doc.text(`Total Pilado: ${data.summary.total_milled.toLocaleString('pt-BR')} kg (${(data.summary.total_milled / 60).toFixed(1)} sacas)`, 20, 52);
+      doc.text(`Total Vendido: ${data.summary.total_sold.toLocaleString('pt-BR')} kg (${(data.summary.total_sold / 60).toFixed(1)} sacas)`, 20, 59);
+      doc.text(`SALDO ATUAL: ${data.summary.balance.toLocaleString('pt-BR')} kg (${(data.summary.balance / 60).toFixed(1)} sacas)`, 20, 66);
 
-    if (data.harvest_finished_at) {
-      doc.setFont('helvetica', 'bold');
-      doc.text(`SAFRA FINALIZADA EM: ${new Date(data.harvest_finished_at).toLocaleDateString('pt-BR')}`, 20, 75);
-      doc.setFont('helvetica', 'normal');
+      if (data.harvest_finished_at) {
+        doc.setFont('helvetica', 'bold');
+        doc.text(`SAFRA FINALIZADA EM: ${new Date(data.harvest_finished_at).toLocaleDateString('pt-BR')}`, 20, 75);
+        doc.setFont('helvetica', 'normal');
+      }
+
+      // Guides Table
+      doc.text('ENTRADAS DE CAFÉ', 20, 85);
+      doc.autoTable({
+        startY: 90,
+        head: [['Guia', 'Data', 'Peso Maduro', 'Sacas Piladas', 'Peso Pilado']],
+        body: data.guides.map(g => [
+          g.guide_number,
+          new Date(g.date).toLocaleDateString('pt-BR'),
+          `${Number(g.weight_mature).toLocaleString('pt-BR')} kg`,
+          g.weight_milled ? (Number(g.weight_milled) / 60).toFixed(1) : '-',
+          g.weight_milled ? `${Number(g.weight_milled).toLocaleString('pt-BR')} kg` : '-'
+        ]),
+      });
+
+      // Sales Table
+      doc.text('VENDAS REALIZADAS', 20, doc.lastAutoTable.finalY + 15);
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 20,
+        head: [['Data', 'Sacas', 'Peso (kg)', 'Status']],
+        body: data.sales.map(s => [
+          new Date(s.date).toLocaleDateString('pt-BR'),
+          (Number(s.quantity) / 60).toFixed(1),
+          `${Number(s.quantity).toLocaleString('pt-BR')} kg`,
+          s.is_post_harvest ? 'PÓS-SAFRA' : 'SAFRA'
+        ]),
+      });
+
+      doc.save(`extrato-${data.name.toLowerCase().replace(/\s+/g, '-')}.pdf`);
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      alert('Erro ao gerar o arquivo PDF. Tente novamente.');
     }
-
-    // Guides Table
-    doc.text('ENTRADAS DE CAFÉ', 20, 85);
-    doc.autoTable({
-      startY: 90,
-      head: [['Guia', 'Data', 'Peso Maduro', 'Sacas Piladas', 'Peso Pilado']],
-      body: data.guides.map(g => [
-        g.guide_number,
-        new Date(g.date).toLocaleDateString('pt-BR'),
-        `${Number(g.weight_mature).toLocaleString('pt-BR')} kg`,
-        g.weight_milled ? (Number(g.weight_milled) / 60).toFixed(1) : '-',
-        g.weight_milled ? `${Number(g.weight_milled).toLocaleString('pt-BR')} kg` : '-'
-      ]),
-    });
-
-    // Sales Table
-    doc.text('VENDAS REALIZADAS', 20, doc.lastAutoTable.finalY + 15);
-    doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 20,
-      head: [['Data', 'Sacas', 'Peso (kg)', 'Status']],
-      body: data.sales.map(s => [
-        new Date(s.date).toLocaleDateString('pt-BR'),
-        (Number(s.quantity) / 60).toFixed(1),
-        `${Number(s.quantity).toLocaleString('pt-BR')} kg`,
-        s.is_post_harvest ? 'PÓS-SAFRA' : 'SAFRA'
-      ]),
-    });
-
-    doc.save(`extrato-${data.name.toLowerCase().replace(/\s+/g, '-')}.pdf`);
   };
 
   if (!data) return <div className="text-center py-20 font-black text-slate-300 uppercase text-[10px]">Carregando detalhes...</div>;
@@ -151,6 +156,10 @@ export default function ProducerDetail() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button onClick={() => navigate('/')} className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-xl text-slate-600 font-black text-[10px] uppercase active:bg-slate-200 transition-colors">
+            <Home className="w-4 h-4" />
+            Início
+          </button>
           {!data.harvest_finished_at ? (
             <button 
               onClick={handleFinishHarvest}

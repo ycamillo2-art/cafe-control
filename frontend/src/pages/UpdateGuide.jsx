@@ -1,41 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, Weight, Hash, Calendar } from 'lucide-react';
-import api from '../utils/api';
+import { ArrowLeft, CheckCircle, Weight, Hash, Calendar, Home } from 'lucide-react';
 
 export default function UpdateGuide() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [guide, setGuide] = useState(null);
-
-  useEffect(() => {
-    // Para simplificar, buscamos todos os produtores e achamos a guia
-    api.get('/producers').then(async res => {
-      for (const p of res.data) {
-        const detail = await api.get(`/producers/${p.id}`);
-        const found = detail.data.guides.find(g => g.id === parseInt(id));
-        if (found) {
-          setGuide(found);
-          break;
-        }
-      }
-    });
-  }, [id]);
-
-  const [weightMilled, setWeightMilled] = useState('');
-  const [sacas, setSacas] = useState('');
-
-  const handleSacasChange = (val) => {
-    setSacas(val);
-    setWeightMilled(val ? val * 60 : '');
-  };
+  const [formData, setFormData] = useState({
+    weight_milled: '',
+    status: 'FINALIZADO'
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!weightMilled) return;
+    if (!formData.weight_milled) {
+      alert('Informe o peso pilado');
+      return;
+    }
     try {
-      await api.patch(`/guides/${id}`, { weight_milled: parseFloat(weightMilled) });
-      alert('Guia finalizada com sucesso!');
+      await api.patch(`/guides/${id}`, formData);
+      alert('Guia pilada com sucesso!');
       navigate(-1);
     } catch (err) {
       alert('Erro ao atualizar guia');
@@ -44,11 +27,17 @@ export default function UpdateGuide() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center gap-4">
-        <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-slate-400 active:text-emerald-600 transition-colors">
-          <ArrowLeft className="w-6 h-6" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-slate-400 hover:text-emerald-600 transition-colors">
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <h1 className="text-xl font-black text-slate-800 uppercase tracking-tighter">Confirmar Rendimento</h1>
+        </div>
+        <button onClick={() => navigate('/')} className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-xl text-slate-600 font-black text-[10px] uppercase active:bg-slate-200 transition-colors">
+          <Home className="w-4 h-4" />
+          Início
         </button>
-        <h1 className="text-xl font-black text-slate-800 uppercase tracking-tighter">Finalizar Pilagem</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
