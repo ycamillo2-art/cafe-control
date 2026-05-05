@@ -1,33 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Leaf, Settings, DollarSign, Box } from 'lucide-react';
+import { ArrowLeft, FileText, Leaf, Settings, DollarSign, Box, Trash2 } from 'lucide-react';
 import api from '../utils/api';
 
 export default function ProducerDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDetail();
+    fetchData();
   }, [id]);
 
-  const fetchDetail = async () => {
+  const fetchData = async () => {
     try {
       const res = await api.get(`/producers/${id}`);
       setData(res.data);
     } catch (err) {
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   };
 
-  if (loading) return <div className="text-center py-20 text-[10px] font-black text-slate-300 uppercase">Carregando...</div>;
-  if (!data) return <div className="text-center py-20">Produtor não encontrado.</div>;
+  const handleDeleteItem = async (type, itemId) => {
+    const itemLabel = type === 'guides' ? 'Entrada' : 'Venda';
+    if (window.confirm(`Tem certeza que deseja excluir esta ${itemLabel.toLowerCase()}?`)) {
+      try {
+        await api.delete(`/${type}/${itemId}`);
+        alert(`${itemLabel} excluída com sucesso!`);
+        fetchData();
+      } catch (err) {
+        alert(`Erro ao excluir ${itemLabel.toLowerCase()}.`);
+      }
+    }
+  };
 
-  const { summary, guides, sales } = data;
+  if (!data) return <div className="text-center py-20 font-black text-slate-300 uppercase text-[10px]">Carregando detalhes...</div>;
+
+  const { producer, summary, guides, sales } = data;
 
   return (
     <div className="space-y-8">
@@ -37,116 +46,122 @@ export default function ProducerDetail() {
             <ArrowLeft />
           </button>
           <div>
-            <h1 className="text-xl font-black text-slate-800 uppercase tracking-tighter leading-none">{data.name}</h1>
-            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Código: {String(data.id).padStart(3, '0')}</p>
-          </div>
-        </div>
-        <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-3 bg-[#2d6a4f] text-white rounded-xl font-black uppercase text-[10px] tracking-tight">
-          <FileText className="w-4 h-4" />
-          Gerar Relatório (PDF)
-        </button>
-      </div>
-
-      <div className="space-y-4">
-        <div className="section-header">
-          <div className="w-1 h-3 bg-emerald-600 rounded-full" />
-          <h2 className="section-title">Resumo Geral</h2>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <Leaf className="w-5 h-5 text-emerald-600" />
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Recebido (Maduro)</p>
-            </div>
-            <p className="text-3xl font-black text-emerald-800 leading-none">{(summary.total_mature || 0).toLocaleString('pt-BR')} kg</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <Settings className="w-5 h-5 text-[#603813]" />
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Pilado (Rendimento)</p>
-            </div>
-            <p className="text-3xl font-black text-[#603813] leading-none">{(summary.total_milled || 0).toLocaleString('pt-BR')} kg</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <DollarSign className="w-5 h-5 text-red-600" />
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Vendido</p>
-            </div>
-            <p className="text-3xl font-black text-red-700 leading-none">{(summary.total_sold || 0).toLocaleString('pt-BR')} kg</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <Box className="w-5 h-5 text-blue-600" />
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Saldo Atual (Pilado)</p>
-            </div>
-            <p className="text-3xl font-black text-blue-800 leading-none">{(summary.balance || 0).toLocaleString('pt-BR')} kg</p>
+            <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tighter leading-none">{data.name}</h1>
+            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-1">Extrato do Produtor</p>
           </div>
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="section-header">
-          <div className="w-1 h-3 bg-amber-800 rounded-full" />
-          <h2 className="section-title">Entradas de Café</h2>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <Leaf className="w-5 h-5 text-emerald-600" />
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Recebido (Maduro)</p>
+          </div>
+          <p className="text-3xl font-black text-emerald-800 leading-none">{(summary.total_mature || 0).toLocaleString('pt-BR')} kg</p>
         </div>
-        <div className="bg-white rounded-3xl p-5 border border-slate-50 shadow-sm overflow-hidden">
-          <table className="w-full text-left">
-            <thead>
-              <tr>
-                <th className="table-header">Guia</th>
-                <th className="table-header">Data</th>
-                <th className="table-header">Peso Maduro</th>
-                <th className="table-header">Peso Pilado</th>
-                <th className="table-header text-right">Rendimento</th>
-              </tr>
-            </thead>
-            <tbody>
-              {guides.length === 0 ? (
-                <tr><td colSpan="5" className="py-10 text-center text-[10px] font-bold text-slate-300 italic">Sem registros</td></tr>
-              ) : (
-                guides.map(g => (
-                  <tr key={g.id} onClick={() => g.status === 'PENDENTE' && navigate(`/update-guide/${g.id}`)}>
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <Settings className="w-5 h-5 text-[#603813]" />
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Pilado (Rendimento)</p>
+          </div>
+          <p className="text-3xl font-black text-[#603813] leading-none">{(summary.total_milled || 0).toLocaleString('pt-BR')} kg</p>
+        </div>
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <DollarSign className="w-5 h-5 text-red-600" />
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Vendido</p>
+          </div>
+          <p className="text-3xl font-black text-red-700 leading-none">{(summary.total_sold || 0).toLocaleString('pt-BR')} kg</p>
+        </div>
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <Box className="w-5 h-5 text-blue-600" />
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Saldo Atual (Pilado)</p>
+          </div>
+          <p className="text-3xl font-black text-blue-800 leading-none">{(summary.balance || 0).toLocaleString('pt-BR')} kg</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-4 bg-orange-500 rounded-full" />
+              <h3 className="font-black text-slate-800 uppercase text-xs tracking-widest">Entradas de Café</h3>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="table-header">
+                  <th className="pb-4">Guia</th>
+                  <th className="pb-4">Dados</th>
+                  <th className="pb-4">Peso Maduro</th>
+                  <th className="pb-4">Peso Pilado</th>
+                  <th className="pb-4">Rendimento</th>
+                  <th className="pb-4"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {guides.map(g => (
+                  <tr key={g.id} className="group">
                     <td className="table-cell">{g.guide_number}</td>
                     <td className="table-cell">{new Date(g.date).toLocaleDateString('pt-BR')}</td>
-                    <td className="table-cell">{g.weight_mature.toLocaleString('pt-BR')} kg</td>
-                    <td className="table-cell">{g.weight_milled ? `${g.weight_milled.toLocaleString('pt-BR')} kg` : <span className="text-amber-600 italic">Pendente</span>}</td>
-                    <td className="table-cell text-right font-black text-emerald-700">{g.yield_pct ? `${Number(g.yield_pct).toFixed(1)}%` : '-'}</td>
+                    <td className="table-cell">{Number(g.weight_mature).toLocaleString('pt-BR')} kg</td>
+                    <td className="table-cell">{g.weight_milled ? `${Number(g.weight_milled).toLocaleString('pt-BR')} kg` : '-'}</td>
+                    <td className="table-cell text-emerald-600 font-black">{g.yield_pct ? `${Number(g.yield_pct).toFixed(1)}%` : '-'}</td>
+                    <td className="table-cell text-right">
+                      <button 
+                        onClick={() => handleDeleteItem('guides', g.id)}
+                        className="p-1.5 text-slate-200 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-4">
-        <div className="section-header">
-          <div className="w-1 h-3 bg-red-600 rounded-full" />
-          <h2 className="section-title">Vendas Realizadas</h2>
-        </div>
-        <div className="bg-white rounded-3xl p-5 border border-slate-50 shadow-sm overflow-hidden">
-          <table className="w-full text-left">
-            <thead>
-              <tr>
-                <th className="table-header">Data</th>
-                <th className="table-header">Quantidade</th>
-                <th className="table-header text-right">Valor Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sales.length === 0 ? (
-                <tr><td colSpan="3" className="py-10 text-center text-[10px] font-bold text-slate-300 italic">Sem registros</td></tr>
-              ) : (
-                sales.map(s => (
-                  <tr key={s.id}>
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-4 bg-red-500 rounded-full" />
+              <h3 className="font-black text-slate-800 uppercase text-xs tracking-widest">Vendas Realizadas</h3>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="table-header">
+                  <th className="pb-4">Dados</th>
+                  <th className="pb-4">Quantidade</th>
+                  <th className="pb-4">Valor Total</th>
+                  <th className="pb-4"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {sales.map(s => (
+                  <tr key={s.id} className="group">
                     <td className="table-cell">{new Date(s.date).toLocaleDateString('pt-BR')}</td>
-                    <td className="table-cell font-black">{s.quantity.toLocaleString('pt-BR')} kg</td>
-                    <td className="table-cell text-right font-black text-red-600">R$ {Number(s.total_value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td className="table-cell">{Number(s.quantity).toLocaleString('pt-BR')} kg</td>
+                    <td className="table-cell text-red-600 font-black">R$ {Number(s.total_value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td className="table-cell text-right">
+                      <button 
+                        onClick={() => handleDeleteItem('sales', s.id)}
+                        className="p-1.5 text-slate-200 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

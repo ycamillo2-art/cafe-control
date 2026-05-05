@@ -206,7 +206,47 @@ app.use((req, res) => {
   }
 });
 
-// Start Server - Build trigger: 1777951654
+app.patch('/api/producers/:id', async (req, res) => {
+  try {
+    const { name } = req.body;
+    await db('producers').where({ id: req.params.id }).update({ name });
+    res.json({ message: 'Produtor atualizado' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/producers/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db('sales').where({ producer_id: id }).del();
+    await db('guides').where({ producer_id: id }).del();
+    await db('producers').where({ id }).del();
+    res.json({ message: 'Produtor e todos os dados relacionados foram excluídos' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/guides/:id', async (req, res) => {
+  try {
+    await db('guides').where({ id: req.params.id }).del();
+    res.json({ message: 'Guia excluída' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/sales/:id', async (req, res) => {
+  try {
+    await db('sales').where({ id: req.params.id }).del();
+    res.json({ message: 'Venda excluída' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Start Server - Build trigger: 1777956600
 initDb().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
