@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Leaf, Settings, Box, DollarSign, Plus, ShoppingCart, Users, Warehouse } from 'lucide-react';
+import { Leaf, Settings, Box, DollarSign, Plus, ShoppingCart, Users } from 'lucide-react';
 import api from '../utils/api';
 
 export default function Dashboard() {
@@ -8,8 +8,7 @@ export default function Dashboard() {
     mature: 0,
     milled: 0,
     sold: 0,
-    balance: 0,
-    inYard: 0
+    balance: 0
   });
 
   useEffect(() => {
@@ -20,9 +19,8 @@ export default function Dashboard() {
           mature: acc.mature + (Number(p.total_mature) || 0),
           milled: acc.milled + (Number(p.total_milled) || 0),
           sold: acc.sold + (Number(p.total_sold) || 0),
-          balance: acc.balance + (Number(p.balance) || 0),
-          inYard: acc.inYard + ((Number(p.total_mature) || 0) - (Number(p.total_milled) || 0))
-        }), { mature: 0, milled: 0, sold: 0, balance: 0, inYard: 0 });
+          balance: acc.balance + (Number(p.balance) || 0)
+        }), { mature: 0, milled: 0, sold: 0, balance: 0 });
         setTotals(t);
       }
     }).catch(err => {
@@ -50,18 +48,18 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Estoque Maduro (No Terreiro) */}
+        {/* Total Pilado */}
         <div className="bg-[#603813] p-6 rounded-[2.5rem] shadow-xl shadow-amber-100 text-white relative overflow-hidden group">
-          <Warehouse className="absolute -right-4 -bottom-4 w-24 h-24 opacity-10 group-hover:scale-110 transition-transform" />
+          <Settings className="absolute -right-4 -bottom-4 w-24 h-24 opacity-10 group-hover:scale-110 transition-transform" />
           <div className="relative z-10 space-y-4">
             <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center">
-              <Warehouse className="w-5 h-5 text-white" />
+              <Settings className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">No Terreiro (Maduro)</p>
+              <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Total Pilado (Rendimento)</p>
               <p className="text-2xl md:text-3xl font-black leading-tight flex items-baseline gap-2">
-                {totals.inYard.toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
-                <span className="text-xs font-bold opacity-60">({(totals.inYard / 60).toFixed(1)} sc)</span>
+                {totals.milled.toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
+                <span className="text-xs font-bold opacity-60">({(totals.milled / 60).toFixed(1)} sc)</span>
               </p>
             </div>
           </div>
