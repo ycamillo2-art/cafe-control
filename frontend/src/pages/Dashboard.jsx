@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Leaf, Settings, Box, DollarSign, Plus, ShoppingCart, Users } from 'lucide-react';
+import { Leaf, Settings, Box, DollarSign, Plus, ShoppingCart, Users, Warehouse } from 'lucide-react';
 import api from '../utils/api';
 
 export default function Dashboard() {
@@ -8,7 +8,8 @@ export default function Dashboard() {
     mature: 0,
     milled: 0,
     sold: 0,
-    balance: 0
+    balance: 0,
+    inYard: 0
   });
 
   useEffect(() => {
@@ -19,8 +20,9 @@ export default function Dashboard() {
           mature: acc.mature + (Number(p.total_mature) || 0),
           milled: acc.milled + (Number(p.total_milled) || 0),
           sold: acc.sold + (Number(p.total_sold) || 0),
-          balance: acc.balance + (Number(p.balance) || 0)
-        }), { mature: 0, milled: 0, sold: 0, balance: 0 });
+          balance: acc.balance + (Number(p.balance) || 0),
+          inYard: acc.inYard + ((Number(p.total_mature) || 0) - (Number(p.total_milled) || 0))
+        }), { mature: 0, milled: 0, sold: 0, balance: 0, inYard: 0 });
         setTotals(t);
       }
     }).catch(err => {
@@ -29,12 +31,14 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="space-y-8 py-6">
+    <div className="space-y-8 animate-in fade-in duration-500">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="card-summary bg-emerald-600 h-28 md:h-32">
-          <div className="flex items-center gap-4 md:gap-6">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
-              <Leaf className="w-6 h-6 md:w-8 md:h-8 text-white" />
+        {/* Total Recebido */}
+        <div className="bg-emerald-600 p-6 rounded-[2.5rem] shadow-xl shadow-emerald-100 text-white relative overflow-hidden group">
+          <Leaf className="absolute -right-4 -bottom-4 w-24 h-24 opacity-10 group-hover:scale-110 transition-transform" />
+          <div className="relative z-10 space-y-4">
+            <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center">
+              <Leaf className="w-5 h-5 text-white" />
             </div>
             <div>
               <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Total Recebido (Maduro)</p>
@@ -46,25 +50,29 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="card-summary bg-[#603813] h-28 md:h-32">
-          <div className="flex items-center gap-4 md:gap-6">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
-              <Settings className="w-6 h-6 md:w-8 md:h-8 text-white" />
+        {/* Estoque Maduro (No Terreiro) */}
+        <div className="bg-[#603813] p-6 rounded-[2.5rem] shadow-xl shadow-amber-100 text-white relative overflow-hidden group">
+          <Warehouse className="absolute -right-4 -bottom-4 w-24 h-24 opacity-10 group-hover:scale-110 transition-transform" />
+          <div className="relative z-10 space-y-4">
+            <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center">
+              <Warehouse className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Total Pilado (Rendimento)</p>
+              <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">No Terreiro (Maduro)</p>
               <p className="text-2xl md:text-3xl font-black leading-tight flex items-baseline gap-2">
-                {totals.milled.toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
-                <span className="text-xs font-bold opacity-60">({(totals.milled / 60).toFixed(1)} sc)</span>
+                {totals.inYard.toLocaleString('pt-BR')} <span className="text-sm font-medium">kg</span>
+                <span className="text-xs font-bold opacity-60">({(totals.inYard / 60).toFixed(1)} sc)</span>
               </p>
             </div>
           </div>
         </div>
 
-        <div className="card-summary bg-[#dc2626] h-28 md:h-32">
-          <div className="flex items-center gap-4 md:gap-6">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
-              <DollarSign className="w-6 h-6 md:w-8 md:h-8 text-white" />
+        {/* Total Vendido */}
+        <div className="bg-red-600 p-6 rounded-[2.5rem] shadow-xl shadow-red-100 text-white relative overflow-hidden group">
+          <DollarSign className="absolute -right-4 -bottom-4 w-24 h-24 opacity-10 group-hover:scale-110 transition-transform" />
+          <div className="relative z-10 space-y-4">
+            <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-white" />
             </div>
             <div>
               <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Total Vendido</p>
@@ -76,10 +84,12 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="card-summary bg-[#1d4ed8] h-28 md:h-32">
-          <div className="flex items-center gap-4 md:gap-6">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
-              <Box className="w-6 h-6 md:w-8 md:h-8 text-white" />
+        {/* Estoque Atual (Pilado) */}
+        <div className="bg-blue-600 p-6 rounded-[2.5rem] shadow-xl shadow-blue-100 text-white relative overflow-hidden group">
+          <Box className="absolute -right-4 -bottom-4 w-24 h-24 opacity-10 group-hover:scale-110 transition-transform" />
+          <div className="relative z-10 space-y-4">
+            <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center">
+              <Box className="w-5 h-5 text-white" />
             </div>
             <div>
               <p className="text-[10px] md:text-[12px] font-black uppercase tracking-widest opacity-90">Estoque Atual (Pilado)</p>
@@ -92,36 +102,36 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="space-y-6 pt-4">
-        <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.3em] text-center">Ações</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 max-w-4xl mx-auto">
-          <Link to="/add-guide" className="btn-action !bg-transparent !border-none !shadow-none hover:opacity-80">
-            <div className="w-16 h-16 md:w-20 md:h-20 bg-[#00a86b] rounded-full flex items-center justify-center text-white shadow-xl shadow-emerald-100">
-              <Plus className="w-9 h-9 md:w-12 md:h-12" />
+      <div className="space-y-4">
+        <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 text-center">Ações</h2>
+        <div className="flex flex-wrap justify-center gap-6">
+          <Link to="/add-guide" className="flex flex-col items-center gap-3 group">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-emerald-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-100 group-hover:scale-110 active:scale-95 transition-all">
+              <Plus className="w-8 h-8 text-white" />
             </div>
             <div className="text-center">
-              <p className="text-[12px] md:text-[14px] font-black text-slate-800 leading-none">Nova Entrada</p>
-              <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase mt-1">Café do Registrador</p>
+              <p className="text-xs font-black text-slate-800 uppercase tracking-tight">Nova Entrada</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Café do registrador</p>
             </div>
           </Link>
 
-          <Link to="/add-sale" className="btn-action !bg-transparent !border-none !shadow-none hover:opacity-80">
-            <div className="w-16 h-16 md:w-20 md:h-20 bg-[#603813] rounded-full flex items-center justify-center text-white shadow-xl shadow-amber-900/20">
-              <ShoppingCart className="w-8 h-8 md:w-10 md:h-10" />
+          <Link to="/add-sale" className="flex flex-col items-center gap-3 group">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-[#603813] rounded-full flex items-center justify-center shadow-lg shadow-amber-100 group-hover:scale-110 active:scale-95 transition-all">
+              <ShoppingCart className="w-8 h-8 text-white" />
             </div>
             <div className="text-center">
-              <p className="text-[12px] md:text-[14px] font-black text-slate-800 leading-none">Nova Venda</p>
-              <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase mt-1">Café do Vendedor</p>
+              <p className="text-xs font-black text-slate-800 uppercase tracking-tight">Nova Venda</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Café do vendedor</p>
             </div>
           </Link>
 
-          <Link to="/producers" className="btn-action !bg-transparent !border-none !shadow-none hover:opacity-80">
-            <div className="w-16 h-16 md:w-20 md:h-20 bg-[#1d4ed8] rounded-full flex items-center justify-center text-white shadow-xl shadow-blue-100">
-              <Users className="w-8 h-8 md:w-10 md:h-10" />
+          <Link to="/producers" className="flex flex-col items-center gap-3 group">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-100 group-hover:scale-110 active:scale-95 transition-all">
+              <Users className="w-8 h-8 text-white" />
             </div>
             <div className="text-center">
-              <p className="text-[12px] md:text-[14px] font-black text-slate-800 leading-none">Produtores</p>
-              <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase mt-1">Ver relatório</p>
+              <p className="text-xs font-black text-slate-800 uppercase tracking-tight">Produtores</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Ver relatório</p>
             </div>
           </Link>
         </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home } from 'lucide-react';
+import { ArrowLeft, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home, Warehouse } from 'lucide-react';
 import api from '../utils/api';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -95,20 +95,21 @@ export default function ProducerDetail() {
       // Summary
       doc.setFontSize(10);
       doc.text(`Total Maduro: ${(data.summary?.total_mature || 0).toLocaleString('pt-BR')} kg`, 20, 45);
-      doc.text(`Total Pilado: ${(data.summary?.total_milled || 0).toLocaleString('pt-BR')} kg (${((data.summary?.total_milled || 0) / 60).toFixed(1)} sacas)`, 20, 52);
-      doc.text(`Total Vendido: ${(data.summary?.total_sold || 0).toLocaleString('pt-BR')} kg (${((data.summary?.total_sold || 0) / 60).toFixed(1)} sacas)`, 20, 59);
-      doc.text(`SALDO ATUAL: ${(data.summary?.balance || 0).toLocaleString('pt-BR')} kg (${((data.summary?.balance || 0) / 60).toFixed(1)} sacas)`, 20, 66);
+      doc.text(`No Terreiro: ${((data.summary?.total_mature || 0) - (data.summary?.total_milled || 0)).toLocaleString('pt-BR')} kg`, 20, 52);
+      doc.text(`Total Pilado: ${(data.summary?.total_milled || 0).toLocaleString('pt-BR')} kg (${((data.summary?.total_milled || 0) / 60).toFixed(1)} sacas)`, 20, 59);
+      doc.text(`Total Vendido: ${(data.summary?.total_sold || 0).toLocaleString('pt-BR')} kg (${((data.summary?.total_sold || 0) / 60).toFixed(1)} sacas)`, 20, 66);
+      doc.text(`SALDO ATUAL: ${(data.summary?.balance || 0).toLocaleString('pt-BR')} kg (${((data.summary?.balance || 0) / 60).toFixed(1)} sacas)`, 20, 73);
 
       if (data.harvest_finished_at) {
         doc.setFont('helvetica', 'bold');
-        doc.text(`SAFRA FINALIZADA EM: ${new Date(data.harvest_finished_at).toLocaleDateString('pt-BR')}`, 20, 75);
+        doc.text(`SAFRA FINALIZADA EM: ${new Date(data.harvest_finished_at).toLocaleDateString('pt-BR')}`, 20, 82);
         doc.setFont('helvetica', 'normal');
       }
 
       // Guides Table
-      doc.text('ENTRADAS DE CAFÉ', 20, 85);
+      doc.text('ENTRADAS DE CAFÉ', 20, 92);
       doc.autoTable({
-        startY: 90,
+        startY: 97,
         head: [['Guia', 'Data', 'Peso Maduro', 'Sacas Piladas', 'Peso Pilado']],
         body: (data.guides || []).map(g => [
           g.guide_number,
@@ -135,14 +136,15 @@ export default function ProducerDetail() {
 
       doc.save(`extrato-${data.name.toLowerCase().replace(/\s+/g, '-')}.pdf`);
     } catch (error) {
-      console.error('Erro detalhado ao gerar PDF:', error);
-      alert('Erro ao gerar o arquivo PDF. Verifique os dados e tente novamente.');
+      console.error('Erro ao gerar PDF:', error);
+      alert('Erro ao gerar o arquivo PDF. Tente novamente.');
     }
   };
 
   if (!data) return <div className="text-center py-20 font-black text-slate-300 uppercase text-[10px]">Carregando detalhes...</div>;
 
   const { summary, guides, sales } = data;
+  const inYard = (summary.total_mature || 0) - (summary.total_milled || 0);
 
   return (
     <div className="space-y-8">
@@ -185,7 +187,7 @@ export default function ProducerDetail() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <Leaf className="w-5 h-5 text-emerald-600" />
@@ -193,6 +195,14 @@ export default function ProducerDetail() {
           </div>
           <p className="text-2xl font-black text-slate-800 leading-none">{(summary.total_mature || 0).toLocaleString('pt-BR')} kg</p>
           <p className="text-[10px] font-bold text-slate-400 mt-2">{(summary.total_mature / 60).toFixed(1)} sacas</p>
+        </div>
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <Warehouse className="w-5 h-5 text-amber-600" />
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No Terreiro</p>
+          </div>
+          <p className="text-2xl font-black text-slate-800 leading-none">{inYard.toLocaleString('pt-BR')} kg</p>
+          <p className="text-[10px] font-bold text-slate-400 mt-2">{(inYard / 60).toFixed(1)} sacas</p>
         </div>
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
@@ -213,7 +223,7 @@ export default function ProducerDetail() {
         <div className="bg-blue-600 p-6 rounded-3xl shadow-xl shadow-blue-100">
           <div className="flex items-center gap-3 mb-3">
             <Box className="w-5 h-5 text-white/60" />
-            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Saldo Atual</p>
+            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Saldo Pilado</p>
           </div>
           <p className="text-2xl font-black text-white leading-none">{(summary.balance || 0).toLocaleString('pt-BR')} kg</p>
           <p className="text-[10px] font-bold text-white/60 mt-2">{(summary.balance / 60).toFixed(1)} sacas</p>
