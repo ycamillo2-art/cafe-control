@@ -11,7 +11,8 @@ export default function AddGuide() {
     guide_number: '',
     date: new Date().toISOString().split('T')[0],
     producer_id: '',
-    weight_mature: ''
+    weight_mature: '',
+    sacas: ''
   });
 
   useEffect(() => {
@@ -26,6 +27,18 @@ export default function AddGuide() {
     } else {
       setFormData({ ...formData, producer_id: '' });
     }
+  };
+
+  const handleWeightChange = (val) => {
+    const weight = val;
+    const sacas = weight ? (weight / 60).toFixed(2) : '';
+    setFormData({ ...formData, weight_mature: weight, sacas: sacas });
+  };
+
+  const handleSacasChangeInput = (val) => {
+    const sacas = val;
+    const weight = sacas ? (sacas * 60).toFixed(2) : '';
+    setFormData({ ...formData, weight_mature: weight, sacas: sacas });
   };
 
   const handleSubmit = async (e) => {
@@ -113,17 +126,32 @@ export default function AddGuide() {
               </div>
             </div>
 
-            <div>
-              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Peso Maduro (kg)</label>
-              <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl px-4 py-5">
-                <input 
-                  type="number" 
-                  step="0.01"
-                  className="w-full bg-transparent outline-none text-2xl font-black text-emerald-900 placeholder:text-emerald-200"
-                  placeholder="0,00"
-                  value={formData.weight_mature}
-                  onChange={e => setFormData({...formData, weight_mature: e.target.value})}
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Quantidade (Sacas)</label>
+                <div className="relative flex items-center bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-4">
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    className="w-full bg-transparent outline-none text-2xl font-black text-emerald-900 placeholder:text-emerald-200"
+                    placeholder="0"
+                    value={formData.sacas}
+                    onChange={e => handleSacasChangeInput(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Peso Maduro (kg)</label>
+                <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl px-4 py-4">
+                  <input 
+                    type="number" 
+                    step="0.01"
+                    className="w-full bg-transparent outline-none text-2xl font-black text-slate-700 placeholder:text-slate-200"
+                    placeholder="0,00"
+                    value={formData.weight_mature}
+                    onChange={e => handleWeightChange(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
           </div>

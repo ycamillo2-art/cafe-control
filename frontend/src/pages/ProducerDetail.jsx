@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home, Printer } from 'lucide-react';
+import { ArrowLeft, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home, Printer, FileText } from 'lucide-react';
 import api from '../utils/api';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
 
 export default function ProducerDetail() {
   const { id } = useParams();
@@ -85,50 +83,6 @@ export default function ProducerDetail() {
     window.print();
   };
 
-  const generatePDF = () => {
-    console.log('Iniciando geração de PDF...');
-    try {
-      const doc = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = doc.internal.pageSize.getWidth();
-
-      doc.setFontSize(20);
-      doc.text('EXTRATO DO PRODUTOR', pageWidth / 2, 20, { align: 'center' });
-      
-      doc.setFontSize(12);
-      doc.text(`Produtor: ${(data.name || '').toUpperCase()}`, 14, 35);
-      doc.text(`Data do Relatório: ${new Date().toLocaleDateString('pt-BR')}`, 14, 42);
-
-      // Resumo
-      doc.setFont('helvetica', 'bold');
-      doc.text('RESUMO GERAL', 14, 55);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Total Maduro: ${(data.summary?.total_mature || 0).toLocaleString('pt-BR')} kg`, 14, 62);
-      doc.text(`Total Pilado: ${(data.summary?.total_milled || 0).toLocaleString('pt-BR')} kg`, 14, 69);
-      doc.text(`Total Vendido: ${(data.summary?.total_sold || 0).toLocaleString('pt-BR')} kg`, 14, 76);
-      doc.text(`SALDO ATUAL: ${(data.summary?.balance || 0).toLocaleString('pt-BR')} kg`, 14, 83);
-
-      // Tabela de Entradas
-      autoTable(doc, {
-        startY: 95,
-        head: [['Guia', 'Data', 'Status', 'Maduro (kg)', 'Pilado (kg)']],
-        body: (data.guides || []).map(g => [
-          g.guide_number,
-          new Date(g.date).toLocaleDateString('pt-BR'),
-          g.status,
-          `${Number(g.weight_mature || 0).toLocaleString('pt-BR')}`,
-          g.weight_milled ? `${Number(g.weight_milled).toLocaleString('pt-BR')}` : '-'
-        ]),
-        headStyles: { fillColor: [16, 185, 129] }
-      });
-
-      const fileName = `extrato-${(data.name || 'relatorio').toLowerCase().replace(/\s+/g, '-')}.pdf`;
-      doc.save(fileName);
-      console.log('PDF gerado com sucesso!');
-    } catch (error) {
-      console.error('ERRO FATAL NO PDF:', error);
-      alert('Erro ao gerar PDF: ' + error.message);
-    }
-  };
 
   if (!data) return <div className="text-center py-20 font-black text-slate-300 uppercase text-[10px]">Carregando detalhes...</div>;
 
@@ -139,10 +93,10 @@ export default function ProducerDetail() {
       {/* Estilos para Impressão */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          @page { margin: 1cm; }
+          @page { margin: 1.5cm; }
           .no-print { display: none !important; }
           .print-only { display: block !important; }
-          body { background: white !important; padding: 0 !important; }
+          body { background: white !important; padding: 0 !important; font-size: 12pt !important; }
           .shadow-sm, .shadow-lg, .shadow-xl { shadow: none !important; box-shadow: none !important; }
           .rounded-3xl, .rounded-xl { border-radius: 0 !important; border: 1px solid #eee !important; }
           .bg-emerald-600, .bg-blue-600, .bg-slate-800, .bg-[#603813] { 
@@ -153,19 +107,41 @@ export default function ProducerDetail() {
           .text-white { color: black !important; }
           .text-white\/60 { color: #666 !important; }
           .grid { display: block !important; }
-          .grid > div { margin-bottom: 20px !important; page-break-inside: avoid; }
-          table { font-size: 10pt !important; }
+          .grid > div { margin-bottom: 25px !important; page-break-inside: avoid; border: 1px solid #eee !important; padding: 15px !important; }
+          table { font-size: 11pt !important; width: 100% !important; border-collapse: collapse !important; }
+          th, td { border-bottom: 1px solid #eee !important; padding: 8px !important; }
+          h1, h2, h3 { color: black !important; }
         }
         .print-only { display: none; }
       `}} />
 
       {/* Cabeçalho exclusivo para impressão */}
-      <div className="print-only text-center border-b-2 border-slate-900 pb-4 mb-8">
-        <h1 className="text-3xl font-black uppercase">RD - Controle de Café</h1>
-        <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Extrato de Movimentação de Produtor</p>
-        <div className="flex justify-between mt-4 text-[10px] font-bold uppercase">
-          <span>Produtor: {data.name}</span>
-          <span>Data: {new Date().toLocaleDateString('pt-BR')}</span>
+      <div className="print-only mb-10 border-b-4 border-emerald-600 pb-6">
+        <div className="flex justify-between items-end">
+          <div className="flex items-center gap-4">
+            <Leaf className="w-12 h-12 text-emerald-600" />
+            <div>
+              <h1 className="text-4xl font-black uppercase leading-none">RD - Controle de Café</h1>
+              <p className="text-sm font-bold uppercase tracking-widest text-slate-400 mt-1">Soluções em Gestão Cafeeira</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] font-black uppercase text-slate-400">Relatório Gerado em</p>
+            <p className="text-sm font-bold">{new Date().toLocaleDateString('pt-BR')} às {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+          </div>
+        </div>
+        
+        <div className="mt-8 pt-6 border-t border-slate-100 grid grid-cols-2 gap-10">
+          <div>
+            <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Produtor</p>
+            <p className="text-xl font-black uppercase text-slate-800">{data.name}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Status da Safra</p>
+            <p className={`text-sm font-bold uppercase ${data.harvest_finished_at ? 'text-emerald-600' : 'text-blue-600'}`}>
+              {data.harvest_finished_at ? 'Safra Finalizada' : 'Safra em Aberto'}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -202,15 +178,8 @@ export default function ProducerDetail() {
             onClick={handlePrint}
             className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-100"
           >
-            <Printer className="w-4 h-4" />
-            Imprimir
-          </button>
-          <button 
-            onClick={generatePDF}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 transition-colors shadow-lg shadow-slate-200"
-          >
-            <Download className="w-4 h-4" />
-            PDF
+            <FileText className="w-4 h-4" />
+            Gerar PDF
           </button>
         </div>
       </div>

@@ -20,9 +20,17 @@ export default function UpdateGuide() {
   }, [id]);
 
   const handleSacasChange = (val) => {
-    setSacas(val);
-    const kg = val ? val * 60 : '';
+    const s = val;
+    const kg = s ? (s * 60).toFixed(2) : '';
+    setSacas(s);
     setWeightMilled(kg);
+  };
+
+  const handleWeightChange = (val) => {
+    const kg = val;
+    const s = kg ? (kg / 60).toFixed(2) : '';
+    setWeightMilled(kg);
+    setSacas(s);
   };
 
   const handleSubmit = async (e) => {
@@ -94,13 +102,15 @@ export default function UpdateGuide() {
               </div>
               <div>
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Peso Total (kg)</label>
-                <div className="relative flex items-center bg-slate-50 border border-slate-100 rounded-2xl px-4 py-4">
+                <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl px-4 py-4">
                   <Weight className="w-6 h-6 text-slate-300 mr-3" />
                   <input 
                     type="number" 
-                    readOnly
-                    className="w-full bg-transparent outline-none text-2xl font-black text-slate-500"
+                    step="0.01"
+                    className="w-full bg-transparent outline-none text-2xl font-black text-slate-700 placeholder:text-slate-200"
+                    placeholder="0,00"
                     value={weightMilled}
+                    onChange={e => handleWeightChange(e.target.value)}
                   />
                 </div>
               </div>

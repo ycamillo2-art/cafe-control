@@ -112,13 +112,15 @@ export default function AddSale() {
                 </div>
               </div>
               <div>
-                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Total em kg (Automático)</label>
-                <div className="relative flex items-center bg-slate-50 border border-slate-100 rounded-2xl px-4 py-4">
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Peso Total (kg)</label>
+                <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl px-4 py-4">
                   <input 
                     type="number" 
-                    readOnly
-                    className="w-full bg-transparent outline-none text-sm font-black text-slate-500" 
+                    step="0.01"
+                    className="w-full bg-transparent outline-none text-sm font-black text-slate-700 placeholder:text-slate-200" 
+                    placeholder="0,00"
                     value={formData.quantity}
+                    onChange={e => handleWeightChange(e.target.value)}
                   />
                 </div>
               </div>
@@ -127,6 +129,13 @@ export default function AddSale() {
         </div>
 
         <button type="submit" className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-lg shadow-emerald-200 active:scale-95 transition-all">
+          Confirmar Venda
+        </button>
+      </form>
+    </div>
+  );
+}
+>
           Confirmar Venda
         </button>
       </form>
