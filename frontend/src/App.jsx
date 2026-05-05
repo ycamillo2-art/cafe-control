@@ -16,7 +16,7 @@ function App() {
             <Link to="/" className="flex flex-col items-center gap-1 outline-none text-center">
               <div className="flex items-center gap-2 leading-none">
                 <span className="text-3xl font-black text-red-600 tracking-tighter">RD</span>
-                <span className="text-3xl font-black text-slate-800 tracking-tighter uppercase">Controle de Café</span>
+                <span className="text-3xl font-black text-slate-800 tracking-tighter uppercase">Coração de Café</span>
               </div>
               <span className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.3em] mt-1">Sistema Atualizado v2.0</span>
             </Link>
