@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home } from 'lucide-react';
+import { ArrowLeft, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home, Printer } from 'lucide-react';
 import api from '../utils/api';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -81,6 +81,10 @@ export default function ProducerDetail() {
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   const generatePDF = () => {
     console.log('Iniciando geração de PDF...');
     try {
@@ -132,8 +136,41 @@ export default function ProducerDetail() {
 
   return (
     <div className="space-y-8">
+      {/* Estilos para Impressão */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { margin: 1cm; }
+          .no-print { display: none !important; }
+          .print-only { display: block !important; }
+          body { background: white !important; padding: 0 !important; }
+          .shadow-sm, .shadow-lg, .shadow-xl { shadow: none !important; box-shadow: none !important; }
+          .rounded-3xl, .rounded-xl { border-radius: 0 !important; border: 1px solid #eee !important; }
+          .bg-emerald-600, .bg-blue-600, .bg-slate-800, .bg-[#603813] { 
+            background-color: transparent !important; 
+            color: black !important;
+            border: 1px solid #eee !important;
+          }
+          .text-white { color: black !important; }
+          .text-white\/60 { color: #666 !important; }
+          .grid { display: block !important; }
+          .grid > div { margin-bottom: 20px !important; page-break-inside: avoid; }
+          table { font-size: 10pt !important; }
+        }
+        .print-only { display: none; }
+      `}} />
+
+      {/* Cabeçalho exclusivo para impressão */}
+      <div className="print-only text-center border-b-2 border-slate-900 pb-4 mb-8">
+        <h1 className="text-3xl font-black uppercase">RD - Controle de Café</h1>
+        <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Extrato de Movimentação de Produtor</p>
+        <div className="flex justify-between mt-4 text-[10px] font-bold uppercase">
+          <span>Produtor: {data.name}</span>
+          <span>Data: {new Date().toLocaleDateString('pt-BR')}</span>
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 no-print">
           <button onClick={() => navigate('/producers')} className="p-2 -ml-2 text-slate-400 hover:text-emerald-600 transition-colors">
             <ArrowLeft />
           </button>
@@ -142,7 +179,7 @@ export default function ProducerDetail() {
             <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-1">Extrato Detalhado</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 no-print">
           <button onClick={() => navigate('/')} className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-xl text-slate-600 font-black text-[10px] uppercase active:bg-slate-200 transition-colors">
             <Home className="w-4 h-4" />
             Inicio
@@ -161,6 +198,13 @@ export default function ProducerDetail() {
               Safra Finalizada
             </div>
           )}
+          <button 
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-100"
+          >
+            <Printer className="w-4 h-4" />
+            Imprimir
+          </button>
           <button 
             onClick={generatePDF}
             className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 transition-colors shadow-lg shadow-slate-200"
