@@ -205,13 +205,14 @@ app.post('/api/sales', async (req, res) => {
 
  const total_value = quantity * price_per_kg;
 
- const [id] = await db('sales').insert({
+ const [idObj] = await db('sales').insert({
  date,
  producer_id,
  quantity,
  price_per_kg,
  total_value
- });
+ }).returning('id');
+ const id = typeof idObj === 'object' ? idObj.id : idObj;
 
  res.status(201).json({ id });
  } catch (err) {
@@ -231,4 +232,9 @@ initDb().then(() => {
  app.listen(PORT, () => {
  console.log(`Server running on port ${PORT}`);
  });
+});
+`);
+ });
+});
+
 });

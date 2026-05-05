@@ -53,33 +53,33 @@ export default function ProducerDetail() {
           <h2 className="section-title">Resumo Geral</h2>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <Leaf className="w-4 h-4 text-emerald-600" />
-              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Total Recebido (Maduro)</p>
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <Leaf className="w-5 h-5 text-emerald-600" />
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Recebido (Maduro)</p>
             </div>
-            <p className="text-lg font-black text-emerald-800 leading-none">{(summary.total_mature || 0).toLocaleString('pt-BR')} kg</p>
+            <p className="text-3xl font-black text-emerald-800 leading-none">{(summary.total_mature || 0).toLocaleString('pt-BR')} kg</p>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <Settings className="w-4 h-4 text-[#603813]" />
-              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Total Pilado (Rendimento)</p>
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <Settings className="w-5 h-5 text-[#603813]" />
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Pilado (Rendimento)</p>
             </div>
-            <p className="text-lg font-black text-[#603813] leading-none">{(summary.total_milled || 0).toLocaleString('pt-BR')} kg</p>
+            <p className="text-3xl font-black text-[#603813] leading-none">{(summary.total_milled || 0).toLocaleString('pt-BR')} kg</p>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <DollarSign className="w-4 h-4 text-red-600" />
-              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Total Vendido</p>
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <DollarSign className="w-5 h-5 text-red-600" />
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Vendido</p>
             </div>
-            <p className="text-lg font-black text-red-700 leading-none">{(summary.total_sold || 0).toLocaleString('pt-BR')} kg</p>
+            <p className="text-3xl font-black text-red-700 leading-none">{(summary.total_sold || 0).toLocaleString('pt-BR')} kg</p>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <Box className="w-4 h-4 text-blue-600" />
-              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Saldo Atual (Pilado)</p>
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <Box className="w-5 h-5 text-blue-600" />
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Saldo Atual (Pilado)</p>
             </div>
-            <p className="text-lg font-black text-blue-800 leading-none">{(summary.balance || 0).toLocaleString('pt-BR')} kg</p>
+            <p className="text-3xl font-black text-blue-800 leading-none">{(summary.balance || 0).toLocaleString('pt-BR')} kg</p>
           </div>
         </div>
       </div>
