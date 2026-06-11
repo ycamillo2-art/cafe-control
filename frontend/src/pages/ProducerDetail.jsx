@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home, Printer, FileText } from 'lucide-react';
+import Swal from 'sweetalert2';
 import api from '../utils/api';
 
 export default function ProducerDetail() {
@@ -23,58 +24,108 @@ export default function ProducerDetail() {
 
   const handleEditItem = async (type, item) => {
     if (type === 'guides') {
-      const newMature = prompt('Novo Peso Maduro (kg):', item.weight_mature);
-      if (newMature === null) return;
-      const newMilled = prompt('Novo Peso Pilado (kg):', item.weight_milled || 0);
-      if (newMilled === null) return;
-      
-      try {
-        await api.patch(`/guides/${item.id}`, { 
-          weight_mature: parseFloat(newMature), 
-          weight_milled: parseFloat(newMilled) 
-        });
-        alert('Entrada atualizada!');
-        fetchData();
-      } catch (err) {
-        alert('Erro ao atualizar.');
+      const { value: formValues } = await Swal.fire({
+        title: 'Editar Entrada',
+        html:
+          `<label class="text-xs font-bold text-slate-400 uppercase mb-1 block">Peso Maduro (kg)</label>` +
+          `<input id="swal-input1" class="swal2-input" type="number" step="0.01" value="${item.weight_mature}">` +
+          `<label class="text-xs font-bold text-slate-400 uppercase mb-1 mt-4 block">Peso Pilado (kg)</label>` +
+          `<input id="swal-input2" class="swal2-input" type="number" step="0.01" value="${item.weight_milled || 0}">`,
+        focusConfirm: false,
+        confirmButtonColor: '#2e7d32',
+        confirmButtonText: 'Salvar Alterações',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+          return [
+            document.getElementById('swal-input1').value,
+            document.getElementById('swal-input2').value
+          ]
+        }
+      });
+
+      if (formValues) {
+        try {
+          await api.patch(`/guides/${item.id}`, { 
+            weight_mature: parseFloat(formValues[0]), 
+            weight_milled: parseFloat(formValues[1]) 
+          });
+          Swal.fire({ icon: 'success', title: 'Atualizado!', showConfirmButton: false, timer: 1500 });
+          fetchData();
+        } catch (err) {
+          Swal.fire('Erro!', 'Não foi possível atualizar.', 'error');
+        }
       }
     } else {
-      const newSacas = prompt('Nova Quantidade (Sacas):', item.quantity / 60);
-      if (newSacas === null) return;
-      
-      try {
-        await api.patch(`/sales/${item.id}`, { 
-          quantity: parseFloat(newSacas) * 60
-        });
-        alert('Venda atualizada!');
-        fetchData();
-      } catch (err) {
-        alert('Erro ao atualizar.');
+      const { value: newSacas } = await Swal.fire({
+        title: 'Editar Venda',
+        input: 'number',
+        inputLabel: 'Nova Quantidade (Sacas)',
+        inputValue: item.quantity / 60,
+        showCancelButton: true,
+        confirmButtonColor: '#2e7d32',
+        confirmButtonText: 'Salvar',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (newSacas) {
+        try {
+          await api.patch(`/sales/${item.id}`, { 
+            quantity: parseFloat(newSacas) * 60
+          });
+          Swal.fire({ icon: 'success', title: 'Venda Atualizada!', showConfirmButton: false, timer: 1500 });
+          fetchData();
+        } catch (err) {
+          Swal.fire('Erro!', 'Não foi possível atualizar.', 'error');
+        }
       }
     }
   };
 
   const handleDeleteItem = async (type, itemId) => {
     const itemLabel = type === 'guides' ? 'Entrada' : 'Venda';
-    if (window.confirm(`Tem certeza que deseja excluir esta ${itemLabel.toLowerCase()}?`)) {
+    
+    const result = await Swal.fire({
+      title: `Excluir ${itemLabel}?`,
+      text: "Esta ação não pode ser desfeita!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d32f2f',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Sim, excluir!',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
       try {
         await api.delete(`/${type}/${itemId}`);
-        alert(`${itemLabel} excluída com sucesso!`);
+        Swal.fire({ icon: 'success', title: 'Excluído!', showConfirmButton: false, timer: 1500 });
         fetchData();
       } catch (err) {
-        alert(`Erro ao excluir ${itemLabel.toLowerCase()}.`);
+        Swal.fire('Erro!', `Erro ao excluir ${itemLabel.toLowerCase()}.`, 'error');
       }
     }
   };
 
   const handleFinishHarvest = async () => {
-    if (window.confirm('Deseja finalizar a safra deste produtor? Isso marcará as próximas vendas como "pós-safra".')) {
+    const result = await Swal.fire({
+      title: 'Finalizar Safra?',
+      text: 'Isso marcará as próximas vendas como "pós-safra".',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#1565c0',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Sim, finalizar',
+      cancelButtonText: 'Manter em aberto'
+    });
+
+    if (result.isConfirmed) {
       try {
         await api.post(`/producers/${id}/finish-harvest`);
-        alert('Safra finalizada com sucesso!');
+        Swal.fire({ icon: 'success', title: 'Safra Finalizada!', text: 'Bom trabalho!', confirmButtonColor: '#2e7d32' });
         fetchData();
       } catch (err) {
-        alert('Erro ao finalizar safra.');
+        Swal.fire('Erro!', 'Erro ao finalizar safra.', 'error');
       }
     }
   };

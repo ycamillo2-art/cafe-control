@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Home } from 'lucide-react';
+import Swal from 'sweetalert2';
 import api from '../utils/api';
 
 export default function AddGuide() {
@@ -44,22 +45,42 @@ export default function AddGuide() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.producer_id) {
-      // Se não encontrou o ID, mas tem nome, talvez o usuário queira criar um novo?
-      // O pedido diz "poder digitar o nome do produtor alem de selecionar".
-      // Vamos assumir que se o nome não existe, ele deve cadastrar primeiro.
-      alert('Selecione um produtor válido da lista.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Produtor Inválido',
+        text: 'Selecione um produtor válido da lista.',
+        confirmButtonColor: '#5d4037'
+      });
       return;
     }
     if (!formData.guide_number || !formData.weight_mature) {
-      alert('Preencha todos os campos');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos Incompletos',
+        text: 'Preencha todos os campos obrigatórios.',
+        confirmButtonColor: '#5d4037'
+      });
       return;
     }
     try {
       await api.post('/guides', formData);
-      alert('Lançamento confirmado com sucesso!');
-      navigate(`/producer/${formData.producer_id}`);
+      Swal.fire({
+        icon: 'success',
+        title: 'Lançamento Confirmado!',
+        text: 'A guia foi salva com sucesso.',
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true
+      }).then(() => {
+        navigate(`/producer/${formData.producer_id}`);
+      });
     } catch (err) {
-      alert(err.response?.data?.error || 'Erro ao salvar guia');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao Salvar',
+        text: err.response?.data?.error || 'Não foi possível salvar a guia.',
+        confirmButtonColor: '#d32f2f'
+      });
     }
   };
 

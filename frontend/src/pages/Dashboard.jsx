@@ -104,7 +104,17 @@ export default function Dashboard() {
             </div>
             <div className="text-center">
               <p className="text-xs font-black text-slate-800 uppercase tracking-tight">Nova Entrada</p>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Café do registrador</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Registrar Colheita</p>
+            </div>
+          </Link>
+
+          <Link to="/add-sale" className="flex flex-col items-center gap-3 group">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-800 rounded-full flex items-center justify-center shadow-lg shadow-slate-200 group-hover:scale-110 active:scale-95 transition-all">
+              <ShoppingCart className="w-8 h-8 text-white" />
+            </div>
+            <div className="text-center">
+              <p className="text-xs font-black text-slate-800 uppercase tracking-tight">Nova Venda</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Baixar Estoque</p>
             </div>
           </Link>
 

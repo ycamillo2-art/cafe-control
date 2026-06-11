@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import Dashboard from './pages/Dashboard';
 import ProducerList from './pages/ProducerList';
 import ProducerDetail from './pages/ProducerDetail';
@@ -9,29 +10,42 @@ import UpdateGuide from './pages/UpdateGuide';
 
 function App() {
   const handleExit = () => {
-    alert('Salvando alterações...');
-    window.location.href = "about:blank";
-    window.close();
+    Swal.fire({
+      title: 'Deseja voltar ao Portal?',
+      text: "Você será redirecionado para a tela principal de sistemas.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#2e7d32',
+      cancelButtonColor: '#d32f2f',
+      confirmButtonText: 'Sim, ir ao Portal',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = "https://fazenda360.onrender.com";
+      }
+    });
   };
 
   return (
     <Router>
-      <div className="min-h-screen flex flex-col bg-white">
-        <header className="bg-white px-4 py-8 sticky top-0 z-50">
+      <div className="min-h-screen flex flex-col bg-slate-50">
+        <header className="bg-white px-4 py-6 sticky top-0 z-50 shadow-sm border-b border-slate-100">
           <div className="max-w-6xl mx-auto flex flex-col items-center justify-center w-full relative">
-            <Link to="/" className="flex flex-col items-center gap-1 outline-none text-center">
-              <div className="flex items-center gap-6 leading-none">
-                <img src="https://sc01.alicdn.com/kf/Ab1d5f68f57e14024a5f9a93453a2ab73I.png" alt="RD Conilon Logo" className="h-20 w-auto object-contain" />
-                <span className="text-4xl font-black text-slate-800 tracking-tighter uppercase">RD - CONTROLE DE CAFÉ</span>
+            <Link to="/" className="flex flex-col items-center outline-none text-center">
+              <div className="flex items-center gap-4 leading-none">
+                <img src="https://sc01.alicdn.com/kf/Ab1d5f68f57e14024a5f9a93453a2ab73I.png" alt="RD Conilon Logo" className="h-16 w-auto object-contain" />
+                <div className="flex flex-col items-start">
+                  <span className="text-2xl font-black text-slate-800 tracking-tighter uppercase leading-none">RD CONILON</span>
+                  <span className="text-[14px] font-bold text-slate-500 uppercase tracking-widest">CONTROLE DE CAFÉ</span>
+                </div>
               </div>
-              <span className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.3em] mt-1">Sistema Atualizado v2.0</span>
             </Link>
             <button 
               onClick={handleExit}
-              className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-4 py-2 border border-red-100 rounded-xl text-red-600 font-black text-[10px] uppercase active:bg-red-50 transition-colors"
+              className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-4 py-2 border border-slate-200 rounded-xl text-slate-600 font-bold text-[10px] uppercase hover:bg-slate-50 transition-all shadow-sm"
             >
-              <span className="w-2 h-2 bg-red-600 rounded-full" />
-              Sair
+              <i className="fas fa-th-large mr-1" />
+              Portal
             </button>
           </div>
         </header>

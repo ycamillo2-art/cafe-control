@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Home } from 'lucide-react';
+import Swal from 'sweetalert2';
 import api from '../utils/api';
 
 export default function AddSale() {
@@ -42,15 +43,33 @@ export default function AddSale() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.producer_id || !formData.quantity) {
-      alert('Preencha todos os campos');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos Incompletos',
+        text: 'Selecione o produtor e informe a quantidade.',
+        confirmButtonColor: '#5d4037'
+      });
       return;
     }
     try {
       await api.post('/sales', formData);
-      alert('Venda registrada com sucesso!');
-      navigate(`/producer/${formData.producer_id}`);
+      Swal.fire({
+        icon: 'success',
+        title: 'Venda Registrada!',
+        text: 'O estoque foi atualizado com sucesso.',
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true
+      }).then(() => {
+        navigate(`/producer/${formData.producer_id}`);
+      });
     } catch (err) {
-      alert(err.response?.data?.error || 'Erro ao registrar venda');
+      Swal.fire({
+        icon: 'error',
+        title: 'Saldo Insuficiente',
+        text: err.response?.data?.error || 'Não foi possível registrar a venda.',
+        confirmButtonColor: '#d32f2f'
+      });
     }
   };
 
