@@ -118,16 +118,6 @@ export default function Dashboard() {
             </div>
           </Link>
 
-          <Link to="/add-sale" className="flex flex-col items-center gap-3 group">
-            <div className="w-16 h-16 md:w-20 md:h-20 bg-[#603813] rounded-full flex items-center justify-center shadow-lg shadow-amber-100 group-hover:scale-110 active:scale-95 transition-all">
-              <ShoppingCart className="w-8 h-8 text-white" />
-            </div>
-            <div className="text-center">
-              <p className="text-xs font-black text-slate-800 uppercase tracking-tight">Nova Venda</p>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Café do vendedor</p>
-            </div>
-          </Link>
-
           <Link to="/producers" className="flex flex-col items-center gap-3 group">
             <div className="w-16 h-16 md:w-20 md:h-20 bg-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-100 group-hover:scale-110 active:scale-95 transition-all">
               <Users className="w-8 h-8 text-white" />
