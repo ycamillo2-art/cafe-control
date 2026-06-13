@@ -79,9 +79,18 @@ app.get('/api/producers', authMiddleware, async (req, res) => {
     const results = await Promise.all(producers.map(async p => {
       const guides = await db('guides').where({ producer_id: p.id });
       const sales = await db('sales').where({ producer_id: p.id });
+      
+      const totalMature = guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
       const totalMilled = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
       const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
-      return { ...p, balance: totalMilled - totalSold };
+      
+      return { 
+        ...p, 
+        balance: totalMilled - totalSold,
+        total_mature: totalMature,
+        total_milled: totalMilled,
+        total_sold: totalSold
+      };
     }));
     res.json(results);
   } catch (err) {
