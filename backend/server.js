@@ -28,118 +28,38 @@ app.get('/api/health', (req, res) => {
 
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
-  if (username === 'RD Conilon' && password === '250698') {
+  const users = [
+    { u: 'RD Conilon', p: '250698', d: 'Chistiany Dardengo', t: 'UkQgQ29uaWxvbjoyNTA2OTg=' },
+    { u: 'Yago camillo', p: '170692', d: 'Yago camillo', t: 'WWFnbyBjYW1pbGxvOjE3MDY5Mg==' },
+    { u: 'Gregory', p: '060477', d: 'Gregory Fortunato', t: 'R3JlZ29yeTowNjA0Nzc=' }
+  ];
+
+  const user = users.find(user => user.u === username && user.p === password);
+
+  if (user) {
     res.json({ 
-      token: 'UkQgQ29uaWxvbjoyNTA2OTg=',
-      displayName: 'Chistiany Dardengo'
+      token: user.t,
+      displayName: user.d
     });
   } else {
     res.status(401).json({ error: 'Usuário ou senha incorretos' });
   }
 });
 
-// Proteger rotas da API
-app.use('/api/stats', authMiddleware);
-app.use('/api/producers', authMiddleware);
-app.use('/api/guides', authMiddleware);
-app.use('/api/sales', authMiddleware);
-
-app.get('/api/stats', async (req, res) => {
-  try {
-    const guides = await db('guides').select('weight_mature', 'weight_milled', 'status');
-    const sales = await db('sales').select('quantity');
-
-    const totalMature = guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
-    const totalMilled = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
-    const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
-
-    res.json({
-      total_mature: totalMature,
-      total_milled: totalMilled,
-      total_sold: totalSold,
-      balance: totalMilled - totalSold
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+// Middleware de Autenticação Atualizado
+const authMiddleware = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const validTokens = [
+    'Basic UkQgQ29uaWxvbjoyNTA2OTg=',
+    'Basic WWFnbyBjYW1pbGxvOjE3MDY5Mg==',
+    'Basic R3JlZ29yeTowNjA0Nzc='
+  ];
+  
+  if (validTokens.includes(authHeader)) {
+    return next();
   }
-});
-
-app.get('/api/seed', async (req, res) => {
-  try {
-    const producerNames = [
-      'João da Silva', 'Maria Oliveira', 'José Santos', 'Ana Souza', 'Pedro Costa',
-      'Francisca Ferreira', 'Antônio Rodrigues', 'Adriana Almeida', 'Carlos Gomes', 'Sônia Lima'
-    ];
-
-    await db('sales').del();
-    await db('guides').del();
-    await db('producers').del();
-
-    const producers = [];
-    for (const name of producerNames) {
-      const [idObj] = await db('producers').insert({ name }).returning('id');
-      const id = typeof idObj === 'object' ? idObj.id : idObj;
-      producers.push({ id, name });
-    }
-
-    for (let i = 0; i < 10; i++) {
-      const producer = producers[i % producers.length];
-      const weight_mature = Math.floor(Math.random() * 1000) + 500;
-      const weight_milled = Math.floor(weight_mature * (Math.random() * 0.2 + 0.15));
-      
-      await db('guides').insert({
-        guide_number: `G2026-${String(i + 1).padStart(3, '0')}`,
-        date: '2026-05-01',
-        producer_id: producer.id,
-        weight_mature,
-        weight_milled,
-        yield_pct: (weight_milled / weight_mature) * 100,
-        status: 'FINALIZADO'
-      });
-    }
-
-    for (let i = 0; i < 10; i++) {
-      const producer = producers[i % producers.length];
-      const guides = await db('guides').where({ producer_id: producer.id, status: 'FINALIZADO' });
-      const totalMilled = guides.reduce((acc, g) => acc + Number(g.weight_milled), 0);
-      const quantity = Math.floor(totalMilled * 0.5);
-      
-      if (quantity > 0) {
-        const price_per_kg = Math.floor(Math.random() * 5) + 15;
-        await db('sales').insert({
-          date: '2026-05-04',
-          producer_id: producer.id,
-          quantity,
-          price_per_kg,
-          total_value: quantity * price_per_kg
-        });
-      }
-    }
-    res.send('Seed finalizado com sucesso! Pode voltar ao dashboard.');
-  } catch (err) {
-    res.status(500).send('Erro no seed: ' + err.message);
-  }
-});
-
-// Producers
-app.get('/api/producers', async (req, res) => {
-  try {
-    const producers = await db('producers').select('*');
-    const result = await Promise.all(producers.map(async (p) => {
-      const guides = await db('guides').where({ producer_id: p.id });
-      const sales = await db('sales').where({ producer_id: p.id });
-      
-      const totalMature = guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
-      const totalMilled = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
-      const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
-
-      return {
-        ...p,
-        total_mature: totalMature,
-        total_milled: totalMilled,
-        total_sold: totalSold,
-        balance: totalMilled - totalSold
-      };
+  res.status(401).json({ error: 'Acesso negado' });
+};
     }));
     res.json(result);
   } catch (err) {
