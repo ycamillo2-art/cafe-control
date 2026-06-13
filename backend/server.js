@@ -12,10 +12,16 @@ app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 const PORT = process.env.PORT || 5000;
 
-// Middleware de Autenticação Simples
+// Middleware de Autenticação Atualizado
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (authHeader === 'Basic UkQgQ29uaWxvbjoyNTA2OTg=') { // "RD Conilon:250698" em Base64
+  const validTokens = [
+    'Basic UkQgQ29uaWxvbjoyNTA2OTg=', // RD Conilon:250698
+    'Basic WWFnbyBjYW1pbGxvOjE3MDY5Mg==', // Yago camillo:170692
+    'Basic R3JlZ29yeTowNjA0Nzc=' // Gregory:060477
+  ];
+  
+  if (validTokens.includes(authHeader)) {
     return next();
   }
   res.status(401).json({ error: 'Acesso negado' });
@@ -46,28 +52,44 @@ app.post('/api/login', (req, res) => {
   }
 });
 
-// Middleware de Autenticação Atualizado
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  const validTokens = [
-    'Basic UkQgQ29uaWxvbjoyNTA2OTg=',
-    'Basic WWFnbyBjYW1pbGxvOjE3MDY5Mg==',
-    'Basic R3JlZ29yeTowNjA0Nzc='
-  ];
-  
-  if (validTokens.includes(authHeader)) {
-    return next();
-  }
-  res.status(401).json({ error: 'Acesso negado' });
-};
-    }));
-    res.json(result);
+// Proteger rotas da API
+app.get('/api/stats', authMiddleware, async (req, res) => {
+  try {
+    const guides = await db('guides').select('weight_mature', 'weight_milled', 'status');
+    const sales = await db('sales').select('quantity');
+
+    const totalMature = guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
+    const totalMilled = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
+    const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
+
+    res.json({
+      total_mature: totalMature,
+      total_milled: totalMilled,
+      total_sold: totalSold,
+      balance: totalMilled - totalSold
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post('/api/producers', async (req, res) => {
+app.get('/api/producers', authMiddleware, async (req, res) => {
+  try {
+    const producers = await db('producers').select('*').orderBy('name', 'asc');
+    const results = await Promise.all(producers.map(async p => {
+      const guides = await db('guides').where({ producer_id: p.id });
+      const sales = await db('sales').where({ producer_id: p.id });
+      const totalMilled = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
+      const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
+      return { ...p, balance: totalMilled - totalSold };
+    }));
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/producers', authMiddleware, async (req, res) => {
   try {
     const { name } = req.body;
     const [idObj] = await db('producers').insert({ name }).returning('id');
@@ -78,7 +100,7 @@ app.post('/api/producers', async (req, res) => {
   }
 });
 
-app.patch('/api/producers/:id', async (req, res) => {
+app.patch('/api/producers/:id', authMiddleware, async (req, res) => {
   try {
     const { name } = req.body;
     await db('producers').where({ id: req.params.id }).update({ name });
@@ -88,7 +110,7 @@ app.patch('/api/producers/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/producers/:id', async (req, res) => {
+app.delete('/api/producers/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     await db('sales').where({ producer_id: id }).del();
@@ -100,7 +122,7 @@ app.delete('/api/producers/:id', async (req, res) => {
   }
 });
 
-app.get('/api/producers/:id', async (req, res) => {
+app.get('/api/producers/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const producer = await db('producers').where({ id }).first();
@@ -129,8 +151,7 @@ app.get('/api/producers/:id', async (req, res) => {
   }
 });
 
-// Guides
-app.get('/api/guides/:id', async (req, res) => {
+app.get('/api/guides/:id', authMiddleware, async (req, res) => {
   try {
     const guide = await db('guides').where({ id: req.params.id }).first();
     if (!guide) return res.status(404).json({ error: 'Guide not found' });
@@ -140,7 +161,7 @@ app.get('/api/guides/:id', async (req, res) => {
   }
 });
 
-app.post('/api/guides', async (req, res) => {
+app.post('/api/guides', authMiddleware, async (req, res) => {
   try {
     const { guide_number, date, producer_id, weight_mature } = req.body;
     const [idObj] = await db('guides').insert({
@@ -157,7 +178,7 @@ app.post('/api/guides', async (req, res) => {
   }
 });
 
-app.patch('/api/guides/:id', async (req, res) => {
+app.patch('/api/guides/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { weight_milled, weight_mature, guide_number, date } = req.body;
@@ -184,7 +205,7 @@ app.patch('/api/guides/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/guides/:id', async (req, res) => {
+app.delete('/api/guides/:id', authMiddleware, async (req, res) => {
   try {
     await db('guides').where({ id: req.params.id }).del();
     res.json({ message: 'Guia excluída' });
@@ -193,7 +214,7 @@ app.delete('/api/guides/:id', async (req, res) => {
   }
 });
 
-app.post('/api/producers/:id/finish-harvest', async (req, res) => {
+app.post('/api/producers/:id/finish-harvest', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     await db('producers').where({ id }).update({ harvest_finished_at: new Date() });
@@ -203,8 +224,7 @@ app.post('/api/producers/:id/finish-harvest', async (req, res) => {
   }
 });
 
-// Sales
-app.post('/api/sales', async (req, res) => {
+app.post('/api/sales', authMiddleware, async (req, res) => {
   try {
     const { date, producer_id, quantity, price_per_kg } = req.body;
     const producer = await db('producers').where({ id: producer_id }).first();
@@ -218,14 +238,14 @@ app.post('/api/sales', async (req, res) => {
       return res.status(400).json({ error: 'Insuficiente saldo em estoque' });
     }
 
-    const total_value = quantity * price_per_kg;
+    const total_value = quantity * (price_per_kg || 0);
     const is_post_harvest = producer.harvest_finished_at !== null;
 
     const [idObj] = await db('sales').insert({
       date,
       producer_id,
       quantity,
-      price_per_kg,
+      price_per_kg: price_per_kg || 0,
       total_value,
       is_post_harvest
     }).returning('id');
@@ -236,7 +256,7 @@ app.post('/api/sales', async (req, res) => {
   }
 });
 
-app.patch('/api/sales/:id', async (req, res) => {
+app.patch('/api/sales/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { quantity, price_per_kg, date } = req.body;
@@ -261,7 +281,7 @@ app.patch('/api/sales/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/sales/:id', async (req, res) => {
+app.delete('/api/sales/:id', authMiddleware, async (req, res) => {
   try {
     await db('sales').where({ id: req.params.id }).del();
     res.json({ message: 'Venda excluída' });
@@ -277,7 +297,7 @@ app.use((req, res) => {
   }
 });
 
-// Start Server - Final attempt trigger: 1777999999
+// Start Server
 initDb().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
