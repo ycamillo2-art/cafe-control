@@ -15,20 +15,22 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('cafe_token');
     setIsAuthenticated(false);
+    window.location.href = "https://fazenda360.onrender.com";
   };
 
   const handleExitPortal = () => {
     Swal.fire({
       title: 'Deseja voltar ao Portal?',
-      text: "Você será redirecionado para a tela principal de sistemas.",
+      text: "Sua sessão será encerrada e você precisará logar novamente para voltar.",
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#2e7d32',
       cancelButtonColor: '#d32f2f',
-      confirmButtonText: 'Sim, ir ao Portal',
+      confirmButtonText: 'Sim, sair e ir ao Portal',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
+        localStorage.removeItem('cafe_token'); // Limpa a sessão
         window.location.href = "https://fazenda360.onrender.com";
       }
     });
