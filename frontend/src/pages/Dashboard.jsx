@@ -13,24 +13,15 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const res = await api.get('/producers');
-      const producers = res.data;
+      const res = await api.get('/stats');
+      const stats = res.data;
       
-      if (Array.isArray(producers)) {
-        let mature = 0;
-        let milled = 0;
-        let sold = 0;
-        let balance = 0;
-
-        producers.forEach(p => {
-          mature += Number(p.total_mature) || 0;
-          milled += Number(p.total_milled) || 0;
-          sold += Number(p.total_sold) || 0;
-          balance += Number(p.balance) || 0;
-        });
-
-        setTotals({ mature, milled, sold, balance });
-      }
+      setTotals({ 
+        mature: stats.total_mature || 0, 
+        milled: stats.total_milled || 0, 
+        sold: stats.total_sold || 0, 
+        balance: stats.balance || 0 
+      });
     } catch (err) {
       console.error('Erro ao carregar totais:', err);
     }

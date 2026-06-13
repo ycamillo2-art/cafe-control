@@ -55,12 +55,19 @@ app.post('/api/login', (req, res) => {
 // Proteger rotas da API
 app.get('/api/stats', authMiddleware, async (req, res) => {
   try {
-    const guides = await db('guides').select('weight_mature', 'weight_milled', 'status');
-    const sales = await db('sales').select('quantity');
+    const producers = await db('producers').select('id');
+    let totalMature = 0;
+    let totalMilled = 0;
+    let totalSold = 0;
 
-    const totalMature = guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
-    const totalMilled = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
-    const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
+    for (const p of producers) {
+      const guides = await db('guides').where({ producer_id: p.id });
+      const sales = await db('sales').where({ producer_id: p.id });
+      
+      totalMature += guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
+      totalMilled += guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
+      totalSold += sales.reduce((acc, s) => acc + Number(s.quantity), 0);
+    }
 
     res.json({
       total_mature: totalMature,
