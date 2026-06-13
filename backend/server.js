@@ -69,11 +69,21 @@ app.get('/api/stats', authMiddleware, async (req, res) => {
       totalSold += sales.reduce((acc, s) => acc + Number(s.quantity), 0);
     }
 
+    // Buscar cotações do arquivo compartilhado
+    let quotes = null;
+    try {
+      const quotesPath = path.join(__dirname, '../../fazenda360/coffee_quotes.json');
+      if (require('fs').existsSync(quotesPath)) {
+        quotes = JSON.parse(require('fs').readFileSync(quotesPath, 'utf8'));
+      }
+    } catch (e) {}
+
     res.json({
       total_mature: totalMature,
       total_milled: totalMilled,
       total_sold: totalSold,
-      balance: totalMilled - totalSold
+      balance: totalMilled - totalSold,
+      quotes: quotes
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

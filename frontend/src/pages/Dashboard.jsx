@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Leaf, Settings, Box, Plus, ShoppingCart, Users } from 'lucide-react';
+import { Leaf, Settings, Box, Plus, ShoppingCart, Users, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
 import api from '../utils/api';
 
 export default function Dashboard() {
@@ -10,6 +10,8 @@ export default function Dashboard() {
     sold: 0,
     balance: 0
   });
+  const [quotes, setQuotes] = useState(null);
+  const [isQuotesOpen, setIsQuotesOpen] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -22,6 +24,7 @@ export default function Dashboard() {
         sold: stats.total_sold || 0, 
         balance: stats.balance || 0 
       });
+      setQuotes(stats.quotes);
     } catch (err) {
       console.error('Erro ao carregar totais:', err);
     }
@@ -33,6 +36,47 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Cotação Discreta e Expansiva */}
+      {quotes && (
+        <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
+          <button 
+            onClick={() => setIsQuotesOpen(!isQuotesOpen)}
+            className="w-full flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-amber-600" />
+              </div>
+              <div>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block text-left">Mercado</span>
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-tight">Cotação Cooabriel Hoje</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">LIVE</span>
+              {isQuotesOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+            </div>
+          </button>
+          
+          {isQuotesOpen && (
+            <div className="px-6 pb-6 pt-2 animate-in slide-in-from-top-2 duration-300">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {Object.entries(quotes.quotes).map(([tipo, preco]) => (
+                  <div key={tipo} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <span className="text-xs font-black text-slate-500 uppercase">{tipo}</span>
+                    <span className="text-sm font-black text-slate-800">{preco}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-[8px] font-bold text-slate-300 uppercase tracking-widest">Última atualização: {quotes.updated_at}</span>
+                <a href="https://cooabriel.coop.br/cotacao-do-dia" target="_blank" rel="noreferrer" className="text-[9px] font-black text-amber-600 uppercase hover:underline">Ver site oficial</a>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Total em Kilos de Café Maduro */}
         <div className="bg-emerald-600 p-6 rounded-[2.5rem] shadow-xl shadow-emerald-100 text-white relative overflow-hidden group">
