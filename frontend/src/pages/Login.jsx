@@ -11,6 +11,7 @@ export default function Login({ onLogin }) {
     try {
       const res = await api.post('/login', { username, password });
       localStorage.setItem('cafe_token', res.data.token);
+      localStorage.setItem('user_display_name', res.data.displayName);
       onLogin();
     } catch (err) {
       Swal.fire({

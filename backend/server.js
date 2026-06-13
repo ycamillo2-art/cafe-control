@@ -29,7 +29,10 @@ app.get('/api/health', (req, res) => {
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   if (username === 'RD Conilon' && password === '250698') {
-    res.json({ token: 'UkQgQ29uaWxvbjoyNTA2OTg=' });
+    res.json({ 
+      token: 'UkQgQ29uaWxvbjoyNTA2OTg=',
+      displayName: 'Chistiany Dardengo'
+    });
   } else {
     res.status(401).json({ error: 'Usuário ou senha incorretos' });
   }

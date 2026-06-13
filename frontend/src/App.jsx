@@ -19,6 +19,7 @@ function App() {
   };
 
   const handleExitPortal = () => {
+    const displayName = localStorage.getItem('user_display_name') || 'RD CONILON';
     Swal.fire({
       title: 'Deseja voltar ao Portal?',
       text: "Sua sessão será encerrada com segurança.",
@@ -32,13 +33,14 @@ function App() {
       if (result.isConfirmed) {
         Swal.fire({
             title: 'Salvando registros...',
-            text: 'Obrigado pelo trabalho hoje, RD CONILON!',
+            text: `Obrigado pelo trabalho hoje, ${displayName.toUpperCase()}!`,
             icon: 'success',
             timer: 2500,
             showConfirmButton: false,
             timerProgressBar: true
         }).then(() => {
             localStorage.removeItem('cafe_token'); // Limpa a sessão
+            localStorage.removeItem('user_display_name');
             window.location.href = "https://fazenda360.onrender.com";
         });
       }
