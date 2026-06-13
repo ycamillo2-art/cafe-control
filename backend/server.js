@@ -2,10 +2,56 @@ const express = require('express');
 const cors = require('cors');
 const { initDb, db } = require('./database');
 const path = require('path');
+const axios = require('axios');
+const cheerio = require('cheerio');
+const cron = require('node-cron');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Memória local para cotações
+let currentQuotes = null;
+
+// Função para buscar cotações da Cooabriel
+const fetchQuotes = async () => {
+  try {
+    const url = "https://cooabriel.coop.br/cotacao-do-dia/";
+    const { data } = await axios.get(url, { timeout: 15000 });
+    const $ = cheerio.load(data);
+    const table = $('table');
+    const quotes = {};
+    
+    if (table.length) {
+      table.find('tr').each((i, row) => {
+        if (i === 0) return; // pular header
+        const cols = $(row).find('td');
+        if (cols.length >= 4) {
+          const tipo = $(cols[0]).text().trim();
+          const preco = $(cols[3]).text().trim();
+          if (tipo.includes("Conilon 7") || tipo.includes("Conilon 8")) {
+            quotes[tipo] = preco;
+          }
+        }
+      });
+    }
+
+    if (Object.keys(quotes).length > 0) {
+      currentQuotes = {
+        updated_at: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+        quotes: quotes
+      };
+      console.log("Cotações atualizadas:", currentQuotes.updated_at);
+    }
+  } catch (err) {
+    console.error("Erro ao buscar cotações:", err.message);
+  }
+};
+
+// Rodar a cada 10 minutos
+cron.schedule('*/10 * * * *', fetchQuotes);
+// Rodar uma vez ao iniciar
+fetchQuotes();
 
 // Static files for Frontend
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
@@ -69,21 +115,12 @@ app.get('/api/stats', authMiddleware, async (req, res) => {
       totalSold += sales.reduce((acc, s) => acc + Number(s.quantity), 0);
     }
 
-    // Buscar cotações do arquivo compartilhado
-    let quotes = null;
-    try {
-      const quotesPath = path.join(__dirname, '../../fazenda360/coffee_quotes.json');
-      if (require('fs').existsSync(quotesPath)) {
-        quotes = JSON.parse(require('fs').readFileSync(quotesPath, 'utf8'));
-      }
-    } catch (e) {}
-
     res.json({
       total_mature: totalMature,
       total_milled: totalMilled,
       total_sold: totalSold,
       balance: totalMilled - totalSold,
-      quotes: quotes
+      quotes: currentQuotes
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
