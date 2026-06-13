@@ -12,9 +12,53 @@ app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 const PORT = process.env.PORT || 5000;
 
+// Middleware de Autenticação Simples
+const authMiddleware = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader === 'Basic UkQgQ29uaWxvbjoyNTA2OTg=') { // "RD Conilon:250698" em Base64
+    return next();
+  }
+  res.status(401).json({ error: 'Acesso negado' });
+};
+
 // API Routes
 app.get('/api/health', (req, res) => {
   res.send('API is healthy');
+});
+
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  if (username === 'RD Conilon' && password === '250698') {
+    res.json({ token: 'UkQgQ29uaWxvbjoyNTA2OTg=' });
+  } else {
+    res.status(401).json({ error: 'Usuário ou senha incorretos' });
+  }
+});
+
+// Proteger rotas da API
+app.use('/api/stats', authMiddleware);
+app.use('/api/producers', authMiddleware);
+app.use('/api/guides', authMiddleware);
+app.use('/api/sales', authMiddleware);
+
+app.get('/api/stats', async (req, res) => {
+  try {
+    const guides = await db('guides').select('weight_mature', 'weight_milled', 'status');
+    const sales = await db('sales').select('quantity');
+
+    const totalMature = guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
+    const totalMilled = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
+    const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
+
+    res.json({
+      total_mature: totalMature,
+      total_milled: totalMilled,
+      total_sold: totalSold,
+      balance: totalMilled - totalSold
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.get('/api/seed', async (req, res) => {

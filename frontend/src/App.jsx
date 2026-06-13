@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Dashboard from './pages/Dashboard';
 import ProducerList from './pages/ProducerList';
@@ -7,9 +7,17 @@ import ProducerDetail from './pages/ProducerDetail';
 import AddGuide from './pages/AddGuide';
 import AddSale from './pages/AddSale';
 import UpdateGuide from './pages/UpdateGuide';
+import Login from './pages/Login';
 
 function App() {
-  const handleExit = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('cafe_token'));
+
+  const handleLogout = () => {
+    localStorage.removeItem('cafe_token');
+    setIsAuthenticated(false);
+  };
+
+  const handleExitPortal = () => {
     Swal.fire({
       title: 'Deseja voltar ao Portal?',
       text: "Você será redirecionado para a tela principal de sistemas.",
@@ -26,6 +34,10 @@ function App() {
     });
   };
 
+  if (!isAuthenticated) {
+    return <Login onLogin={() => setIsAuthenticated(true)} />;
+  }
+
   return (
     <Router>
       <div className="min-h-screen flex flex-col bg-slate-50">
@@ -40,13 +52,22 @@ function App() {
                 </div>
               </div>
             </Link>
-            <button 
-              onClick={handleExit}
-              className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-4 py-2 border border-slate-200 rounded-xl text-slate-600 font-bold text-[10px] uppercase hover:bg-slate-50 transition-all shadow-sm"
-            >
-              <i className="fas fa-th-large mr-1" />
-              Portal
-            </button>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <button 
+                onClick={handleExitPortal}
+                className="flex items-center gap-1.5 px-4 py-2 border border-slate-200 rounded-xl text-slate-600 font-bold text-[10px] uppercase hover:bg-slate-50 transition-all shadow-sm"
+              >
+                <i className="fas fa-th-large mr-1" />
+                Portal
+              </button>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 px-4 py-2 bg-red-50 border border-red-100 rounded-xl text-red-600 font-bold text-[10px] uppercase hover:bg-red-100 transition-all shadow-sm"
+              >
+                <i className="fas fa-power-off mr-1" />
+                Sair
+              </button>
+            </div>
           </div>
         </header>
 
