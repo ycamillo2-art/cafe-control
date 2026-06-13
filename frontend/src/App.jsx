@@ -21,17 +21,26 @@ function App() {
   const handleExitPortal = () => {
     Swal.fire({
       title: 'Deseja voltar ao Portal?',
-      text: "Sua sessão será encerrada e você precisará logar novamente para voltar.",
+      text: "Sua sessão será encerrada com segurança.",
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#2e7d32',
       cancelButtonColor: '#d32f2f',
-      confirmButtonText: 'Sim, sair e ir ao Portal',
+      confirmButtonText: 'Sim, encerrar',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        localStorage.removeItem('cafe_token'); // Limpa a sessão
-        window.location.href = "https://fazenda360.onrender.com";
+        Swal.fire({
+            title: 'Salvando registros...',
+            text: 'Obrigado pelo trabalho hoje, RD CONILON!',
+            icon: 'success',
+            timer: 2500,
+            showConfirmButton: false,
+            timerProgressBar: true
+        }).then(() => {
+            localStorage.removeItem('cafe_token'); // Limpa a sessão
+            window.location.href = "https://fazenda360.onrender.com";
+        });
       }
     });
   };
@@ -61,13 +70,6 @@ function App() {
               >
                 <i className="fas fa-th-large mr-1" />
                 Portal
-              </button>
-              <button 
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 px-4 py-2 bg-red-50 border border-red-100 rounded-xl text-red-600 font-bold text-[10px] uppercase hover:bg-red-100 transition-all shadow-sm"
-              >
-                <i className="fas fa-power-off mr-1" />
-                Sair
               </button>
             </div>
           </div>
