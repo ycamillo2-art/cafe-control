@@ -65,7 +65,15 @@ function App() {
                 </div>
               </div>
             </Link>
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2">
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-4">
+              <div className="text-right d-none d-md-block leading-tight">
+                <div className="text-[12px] font-black text-slate-800 uppercase">
+                  {localStorage.getItem('user_display_name') || 'RD CONILON'}
+                </div>
+                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                  Sessão Ativa
+                </div>
+              </div>
               <button 
                 onClick={handleExitPortal}
                 className="flex items-center gap-1.5 px-4 py-2 border border-slate-200 rounded-xl text-slate-600 font-bold text-[10px] uppercase hover:bg-slate-50 transition-all shadow-sm"
