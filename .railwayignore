@@ -1,0 +1,9 @@
+# Arquivos que NAO devem ir para o deploy (railway up)
+node_modules/
+**/node_modules/
+*.sqlite
+.env
+project.zip
+test.txt
+almox360_repo/
+.git/
