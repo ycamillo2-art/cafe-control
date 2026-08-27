@@ -147,7 +147,7 @@ export default function ProducerDetail() {
     const hasFinalized = data.guides.some(g => g.status === 'FINALIZADO');
     const result = await Swal.fire({
       title: 'Aplicar Comissão?',
-      html: `Aplicar <b>${pct}%</b> de comissão do secador para <b>${data.name}</b>?${hasFinalized ? '<br/><br/>Existem pilagens já finalizadas. Onde aplicar a taxa?' : '<br/><br/>A taxa vale para as próximas pilagens.'}`,
+      html: `Aplicar <b>${pct}%</b> de comissão do secador para <b>${data.name}</b>?${hasFinalized ? '<br/><br/>Existem guias finalizadas. Onde aplicar a taxa?' : '<br/><br/>A taxa vale para as próximas pilagens.'}`,
       icon: 'question',
       showCancelButton: true,
       showDenyButton: hasFinalized,
