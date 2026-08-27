@@ -175,11 +175,19 @@ app.post('/api/producers', authMiddleware, async (req, res) => {
 
 app.patch('/api/producers/:id', authMiddleware, async (req, res) => {
   try {
-    const { name, commission_pct } = req.body;
+    const { name, commission_pct, apply_to_existing } = req.body;
     const updateData = {};
     if (name !== undefined) updateData.name = name;
     if (commission_pct !== undefined) updateData.commission_pct = commission_pct;
     await db('producers').where({ id: req.params.id }).update(updateData);
+    // Aplicar a taxa também às pilagens já finalizadas (ação explícita do usuário)
+    if (apply_to_existing && commission_pct !== undefined) {
+      const pct = Number(commission_pct);
+      const guides = await db('guides').where({ producer_id: req.params.id, status: 'FINALIZADO' });
+      for (const g of guides) {
+        await db('guides').where({ id: g.id }).update({ commission_kg: Number(g.weight_milled || 0) * (pct / 100) });
+      }
+    }
     res.json({ message: 'Produtor atualizado' });
   } catch (err) {
     res.status(500).json({ error: err.message });

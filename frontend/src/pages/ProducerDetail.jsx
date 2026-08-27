@@ -144,20 +144,24 @@ export default function ProducerDetail() {
       return;
     }
 
+    const hasFinalized = data.guides.some(g => g.status === 'FINALIZADO');
     const result = await Swal.fire({
       title: 'Aplicar Comissão?',
-      html: `Aplicar <b>${pct}%</b> de comissão do secador para <b>${data.name}</b>?<br/>A nova taxa vale para as <b>próximas pilagens</b> — guias já finalizadas não mudam.`,
+      html: `Aplicar <b>${pct}%</b> de comissão do secador para <b>${data.name}</b>?${hasFinalized ? '<br/><br/>Existem pilagens já finalizadas. Onde aplicar a taxa?' : '<br/><br/>A taxa vale para as próximas pilagens.'}`,
       icon: 'question',
       showCancelButton: true,
+      showDenyButton: hasFinalized,
       confirmButtonColor: '#2e7d32',
+      denyButtonColor: '#64748b',
       cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'Sim, aplicar',
+      confirmButtonText: 'Nas já finalizadas também',
+      denyButtonText: 'Só nas próximas',
       cancelButtonText: 'Cancelar'
     });
 
-    if (result.isConfirmed) {
+    if (result.isConfirmed || result.isDenied) {
       try {
-        await api.patch(`/producers/${id}`, { commission_pct: pct });
+        await api.patch(`/producers/${id}`, { commission_pct: pct, apply_to_existing: result.isConfirmed });
         Swal.fire({ icon: 'success', title: 'Comissão aplicada!', showConfirmButton: false, timer: 1500 });
         fetchData();
       } catch (err) {
