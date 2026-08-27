@@ -8,6 +8,7 @@ export default function ProducerDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
+  const [commissionInput, setCommissionInput] = useState('');
 
   const fetchData = async () => {
     try {
@@ -21,6 +22,12 @@ export default function ProducerDetail() {
   useEffect(() => {
     fetchData();
   }, [id]);
+
+  useEffect(() => {
+    if (data) {
+      setCommissionInput(String(data.summary?.commission_pct ?? 0));
+    }
+  }, [data]);
 
   const handleEditItem = async (type, item) => {
     if (type === 'guides') {
@@ -126,6 +133,35 @@ export default function ProducerDetail() {
         fetchData();
       } catch (err) {
         Swal.fire('Erro!', 'Erro ao finalizar safra.', 'error');
+      }
+    }
+  };
+
+  const handleApplyCommission = async () => {
+    const pct = parseFloat(commissionInput);
+    if (isNaN(pct) || pct < 0 || pct > 100) {
+      Swal.fire('Valor inválido', 'Digite um percentual entre 0 e 100.', 'warning');
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: 'Aplicar Comissão?',
+      html: `Aplicar <b>${pct}%</b> de comissão do secador para <b>${data.name}</b>?<br/>Isso altera o saldo disponível para vendas.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#2e7d32',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Sim, aplicar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await api.patch(`/producers/${id}`, { commission_pct: pct });
+        Swal.fire({ icon: 'success', title: 'Comissão aplicada!', showConfirmButton: false, timer: 1500 });
+        fetchData();
+      } catch (err) {
+        Swal.fire('Erro!', 'Não foi possível aplicar a comissão.', 'error');
       }
     }
   };
@@ -276,6 +312,33 @@ export default function ProducerDetail() {
           </div>
           <p className="card-value text-2xl font-black text-white leading-none">{(summary.balance || 0).toLocaleString('pt-BR')} kg</p>
           <p className="card-sub text-[10px] font-bold text-white/60 mt-2">{(summary.balance / 60).toFixed(1)} sacas</p>
+        </div>
+      </div>
+
+      <div className="no-print flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+        <div className="flex items-center gap-2">
+          <Percent className="w-4 h-4 text-[#603813]" />
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Comissão do Secador</p>
+        </div>
+        <div className="flex items-center gap-2 flex-1">
+          <input
+            type="number"
+            min="0"
+            max="100"
+            step="0.01"
+            value={commissionInput}
+            onChange={(e) => setCommissionInput(e.target.value)}
+            placeholder="0"
+            className="w-24 px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+          <span className="text-[10px] font-black text-slate-400 uppercase">%</span>
+          <button
+            onClick={handleApplyCommission}
+            className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-100"
+          >
+            Aplicar Comissão
+          </button>
+          <p className="text-[10px] font-bold text-slate-400 ml-auto">Atual: {summary.commission_pct}%</p>
         </div>
       </div>
 
