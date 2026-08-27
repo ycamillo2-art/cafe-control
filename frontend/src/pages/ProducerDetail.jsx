@@ -203,7 +203,6 @@ export default function ProducerDetail() {
           .summary-grid .card-label { font-size: 7pt !important; }
           .summary-grid .card-value { font-size: 12pt !important; }
           .summary-grid .card-sub { font-size: 8pt !important; }
-          .saldo-breakdown { font-size: 8pt !important; margin: 8px 0 !important; }
           table { font-size: 11pt !important; width: 100% !important; border-collapse: collapse !important; }
           th, td { border-bottom: 1px solid #eee !important; padding: 8px !important; }
           h1, h2, h3 { color: black !important; }
@@ -301,7 +300,7 @@ export default function ProducerDetail() {
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <Percent className="w-5 h-5 text-[#603813]" />
-            <p className="card-label text-[10px] font-black text-slate-400 uppercase tracking-widest">Comissão do Secador{summary.commission_pct > 0 ? ` (${summary.commission_pct}%)` : ''}</p>
+            <p className="card-label text-[10px] font-black text-slate-400 uppercase tracking-widest">Comissão do Secador</p>
           </div>
           <p className="card-value text-2xl font-black text-slate-800 leading-none">{(summary.commission_kg || 0).toLocaleString('pt-BR')} kg</p>
           <p className="card-sub text-[10px] font-bold text-slate-400 mt-2">{(summary.commission_sacas || 0).toFixed(1)} sacas</p>
@@ -315,12 +314,6 @@ export default function ProducerDetail() {
           <p className="card-sub text-[10px] font-bold text-white/60 mt-2">{(summary.balance / 60).toFixed(1)} sacas</p>
         </div>
       </div>
-
-      {summary.total_milled > 0 && (
-        <div className="saldo-breakdown px-2 text-[10px] font-bold text-slate-500">
-          Saldo disponível para vendas = Total Pilado ({(summary.total_milled / 60).toFixed(1)} sc) − Comissão ({(summary.commission_kg / 60).toFixed(1)} sc) − Vendas ({(summary.total_sold / 60).toFixed(1)} sc) = <span className="text-emerald-600">{(summary.balance / 60).toFixed(1)} sc</span>
-        </div>
-      )}
 
       <div className="no-print flex flex-col sm:flex-row sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
         <div className="flex items-center gap-2">
