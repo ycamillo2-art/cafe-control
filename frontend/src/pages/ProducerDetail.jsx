@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home, Printer, FileText } from 'lucide-react';
+import { ArrowLeft, Settings, DollarSign, Percent, Box, Trash2, Edit2, CheckCircle, Download, Home, Printer, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import api from '../utils/api';
 
@@ -239,7 +239,7 @@ export default function ProducerDetail() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <Settings className="w-5 h-5 text-[#603813]" />
@@ -251,6 +251,14 @@ export default function ProducerDetail() {
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <DollarSign className="w-5 h-5 text-[#603813]" />
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total de Vendas</p>
+          </div>
+          <p className="text-2xl font-black text-slate-800 leading-none">{(summary.total_sold || 0).toLocaleString('pt-BR')} kg</p>
+          <p className="text-[10px] font-bold text-slate-400 mt-2">{(summary.total_sold / 60).toFixed(1)} sacas</p>
+        </div>
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <Percent className="w-5 h-5 text-[#603813]" />
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Comissão do Secador</p>
           </div>
           <p className="text-2xl font-black text-slate-800 leading-none">{(summary.commission_kg || 0).toLocaleString('pt-BR')} kg</p>
