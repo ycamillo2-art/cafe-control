@@ -113,8 +113,7 @@ app.get('/api/stats', authMiddleware, async (req, res) => {
       
       const pMilled = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
       const pSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
-      const pct = Number(p.commission_pct || 0);
-      const pCommission = pMilled * (pct / 100);
+      const pCommission = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.commission_kg || 0), 0);
 
       totalMature += guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
       totalMilled += pMilled;
@@ -145,8 +144,7 @@ app.get('/api/producers', authMiddleware, async (req, res) => {
       const totalMature = guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
       const totalMilled = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
       const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
-      const commissionPct = Number(p.commission_pct || 0);
-      const commissionKg = totalMilled * (commissionPct / 100);
+      const commissionKg = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.commission_kg || 0), 0);
       
       return { 
         ...p, 
@@ -213,7 +211,7 @@ app.get('/api/producers/:id', authMiddleware, async (req, res) => {
     const totalMature = guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
     const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
     const commissionPct = Number(producer.commission_pct || 0);
-    const commissionKg = totalMilled * (commissionPct / 100);
+    const commissionKg = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.commission_kg || 0), 0);
 
     res.json({
       ...producer,
@@ -279,6 +277,10 @@ app.patch('/api/guides/:id', authMiddleware, async (req, res) => {
       const finalMilled = updateData.weight_milled !== undefined ? updateData.weight_milled : guide.weight_milled;
       updateData.yield_pct = finalMature > 0 ? (finalMilled / finalMature) * 100 : 0;
       updateData.status = 'FINALIZADO';
+      // Comissão fixada com a taxa vigente do produtor no momento da pilagem (não muda depois)
+      const prod = await db('producers').where({ id: guide.producer_id }).first();
+      const pct = Number(prod ? prod.commission_pct || 0 : 0);
+      updateData.commission_kg = Number(finalMilled || 0) * (pct / 100);
     }
 
     await db('guides').where({ id }).update(updateData);
@@ -315,8 +317,7 @@ app.post('/api/sales', authMiddleware, async (req, res) => {
     const sales = await db('sales').where({ producer_id });
     const totalMilled = guides.reduce((acc, g) => acc + Number(g.weight_milled), 0);
     const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
-    const commissionPct = Number(producer.commission_pct || 0);
-    const commissionKg = totalMilled * (commissionPct / 100);
+    const commissionKg = guides.reduce((acc, g) => acc + Number(g.commission_kg || 0), 0);
     const balance = totalMilled - commissionKg - totalSold;
 
     if (quantity > balance) {

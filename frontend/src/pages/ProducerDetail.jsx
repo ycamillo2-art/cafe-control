@@ -146,7 +146,7 @@ export default function ProducerDetail() {
 
     const result = await Swal.fire({
       title: 'Aplicar Comissão?',
-      html: `Aplicar <b>${pct}%</b> de comissão do secador para <b>${data.name}</b>?<br/>Isso altera o saldo disponível para vendas.`,
+      html: `Aplicar <b>${pct}%</b> de comissão do secador para <b>${data.name}</b>?<br/>A nova taxa vale para as <b>próximas pilagens</b> — guias já finalizadas não mudam.`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#2e7d32',

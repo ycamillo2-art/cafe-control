@@ -53,9 +53,26 @@ async function initDb() {
       table.decimal('weight_mature').notNullable();
       table.decimal('weight_milled').nullable();
       table.decimal('yield_pct').nullable();
+      table.decimal('commission_kg').nullable().defaultTo(0);
       table.string('status').defaultTo('PENDENTE');
       table.timestamps(true, true);
     });
+  } else {
+    const hasCommissionKg = await db.schema.hasColumn('guides', 'commission_kg');
+    if (!hasCommissionKg) {
+      await db.schema.table('guides', table => {
+        table.decimal('commission_kg').nullable().defaultTo(0);
+      });
+      // Backfill único: guias já finalizadas recebem a comissão com a taxa vigente do produtor
+      const producers = await db('producers').select('id', 'commission_pct');
+      const finalized = await db('guides').where({ status: 'FINALIZADO' }).whereNull('commission_kg');
+      for (const g of finalized) {
+        const prod = producers.find(p => p.id === g.producer_id);
+        const pct = Number(prod ? prod.commission_pct || 0 : 0);
+        const kg = Number(g.weight_milled || 0) * (pct / 100);
+        await db('guides').where({ id: g.id }).update({ commission_kg: kg });
+      }
+    }
   }
 
   const existsSales = await db.schema.hasTable('sales');
