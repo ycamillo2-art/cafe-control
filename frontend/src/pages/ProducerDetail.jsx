@@ -162,6 +162,11 @@ export default function ProducerDetail() {
           .text-white\/60 { color: #666 !important; }
           .grid { display: block !important; }
           .grid > div { margin-bottom: 25px !important; page-break-inside: avoid; border: 1px solid #eee !important; padding: 15px !important; }
+          .summary-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 8px !important; }
+          .summary-grid > div { margin-bottom: 0 !important; padding: 10px 8px !important; page-break-inside: avoid; border: 1px solid #eee !important; }
+          .summary-grid .card-label { font-size: 7pt !important; }
+          .summary-grid .card-value { font-size: 12pt !important; }
+          .summary-grid .card-sub { font-size: 8pt !important; }
           table { font-size: 11pt !important; width: 100% !important; border-collapse: collapse !important; }
           th, td { border-bottom: 1px solid #eee !important; padding: 8px !important; }
           h1, h2, h3 { color: black !important; }
@@ -239,38 +244,38 @@ export default function ProducerDetail() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 summary-grid">
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <Settings className="w-5 h-5 text-[#603813]" />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Pilado</p>
+            <p className="card-label text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Pilado</p>
           </div>
-          <p className="text-2xl font-black text-slate-800 leading-none">{(summary.total_milled || 0).toLocaleString('pt-BR')} kg</p>
-          <p className="text-[10px] font-bold text-slate-400 mt-2">{(summary.total_milled / 60).toFixed(1)} sacas</p>
+          <p className="card-value text-2xl font-black text-slate-800 leading-none">{(summary.total_milled || 0).toLocaleString('pt-BR')} kg</p>
+          <p className="card-sub text-[10px] font-bold text-slate-400 mt-2">{(summary.total_milled / 60).toFixed(1)} sacas</p>
         </div>
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <DollarSign className="w-5 h-5 text-[#603813]" />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total de Vendas</p>
+            <p className="card-label text-[10px] font-black text-slate-400 uppercase tracking-widest">Total de Vendas</p>
           </div>
-          <p className="text-2xl font-black text-slate-800 leading-none">{(summary.total_sold || 0).toLocaleString('pt-BR')} kg</p>
-          <p className="text-[10px] font-bold text-slate-400 mt-2">{(summary.total_sold / 60).toFixed(1)} sacas</p>
+          <p className="card-value text-2xl font-black text-slate-800 leading-none">{(summary.total_sold || 0).toLocaleString('pt-BR')} kg</p>
+          <p className="card-sub text-[10px] font-bold text-slate-400 mt-2">{(summary.total_sold / 60).toFixed(1)} sacas</p>
         </div>
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <Percent className="w-5 h-5 text-[#603813]" />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Comissão do Secador</p>
+            <p className="card-label text-[10px] font-black text-slate-400 uppercase tracking-widest">Comissão do Secador</p>
           </div>
-          <p className="text-2xl font-black text-slate-800 leading-none">{(summary.commission_kg || 0).toLocaleString('pt-BR')} kg</p>
-          <p className="text-[10px] font-bold text-slate-400 mt-2">{(summary.commission_sacas || 0).toFixed(1)} sacas</p>
+          <p className="card-value text-2xl font-black text-slate-800 leading-none">{(summary.commission_kg || 0).toLocaleString('pt-BR')} kg</p>
+          <p className="card-sub text-[10px] font-bold text-slate-400 mt-2">{(summary.commission_sacas || 0).toFixed(1)} sacas</p>
         </div>
         <div className="bg-blue-600 p-6 rounded-3xl shadow-xl shadow-blue-100">
           <div className="flex items-center gap-3 mb-3">
             <Box className="w-5 h-5 text-white/60" />
-            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Saldo disponível para vendas</p>
+            <p className="card-label text-[10px] font-black text-white/60 uppercase tracking-widest">Saldo disponível para vendas</p>
           </div>
-          <p className="text-2xl font-black text-white leading-none">{(summary.balance || 0).toLocaleString('pt-BR')} kg</p>
-          <p className="text-[10px] font-bold text-white/60 mt-2">{(summary.balance / 60).toFixed(1)} sacas</p>
+          <p className="card-value text-2xl font-black text-white leading-none">{(summary.balance || 0).toLocaleString('pt-BR')} kg</p>
+          <p className="card-sub text-[10px] font-bold text-white/60 mt-2">{(summary.balance / 60).toFixed(1)} sacas</p>
         </div>
       </div>
 
