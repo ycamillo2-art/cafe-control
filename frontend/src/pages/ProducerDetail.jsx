@@ -179,6 +179,21 @@ export default function ProducerDetail() {
 
   const { summary, guides, sales } = data;
 
+  // Identifica em quais guias a taxa de comissão mudou (em relação à guia anterior)
+  const commissionChanges = {};
+  {
+    const sorted = [...guides].sort((a, b) => new Date(a.date) - new Date(b.date) || a.id - b.id);
+    let lastRate = null;
+    for (const g of sorted) {
+      if (g.commission_pct !== null && g.commission_pct !== undefined) {
+        if (lastRate !== null && g.commission_pct !== lastRate) {
+          commissionChanges[g.id] = g.commission_pct;
+        }
+        lastRate = g.commission_pct;
+      }
+    }
+  }
+
   return (
     <div className="space-y-8">
       {/* Estilos para Impressão */}
@@ -377,6 +392,9 @@ export default function ProducerDetail() {
                           <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" title="Finalizado" />
                         )}
                         {g.guide_number}
+                        {commissionChanges[g.id] !== undefined && (
+                          <span className="block text-[8px] font-black text-[#603813] uppercase mt-0.5">a partir desta guia: {commissionChanges[g.id]}% comissão</span>
+                        )}
                       </div>
                     </td>
                     <td className="py-4 text-xs font-bold text-slate-500">{new Date(g.date).toLocaleDateString('pt-BR')}</td>

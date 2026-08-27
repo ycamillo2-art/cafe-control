@@ -221,6 +221,13 @@ app.get('/api/producers/:id', authMiddleware, async (req, res) => {
     const commissionPct = Number(producer.commission_pct || 0);
     const commissionKg = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.commission_kg || 0), 0);
 
+    const enrichedGuides = guides.map(g => ({
+      ...g,
+      commission_pct: g.weight_milled && Number(g.weight_milled) > 0
+        ? parseFloat(((Number(g.commission_kg || 0) / Number(g.weight_milled)) * 100).toFixed(2))
+        : null
+    }));
+
     res.json({
       ...producer,
       summary: {
@@ -232,7 +239,7 @@ app.get('/api/producers/:id', authMiddleware, async (req, res) => {
         commission_sacas: commissionKg / 60,
         balance: totalMilled - commissionKg - totalSold
       },
-      guides,
+      guides: enrichedGuides,
       sales
     });
   } catch (err) {
