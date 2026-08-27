@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Leaf, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home, Printer, FileText } from 'lucide-react';
+import { ArrowLeft, Settings, DollarSign, Box, Trash2, Edit2, CheckCircle, Download, Home, Printer, FileText } from 'lucide-react';
 import Swal from 'sweetalert2';
 import api from '../utils/api';
 
@@ -177,6 +177,7 @@ export default function ProducerDetail() {
             <div className="flex flex-col justify-center">
               <h1 className="text-4xl font-black uppercase leading-[0.8]">RD - Controle de Café</h1>
               <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400 mt-2">Soluções em Gestão Cafeeira</p>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700 mt-1">Safra {new Date().getFullYear()}</p>
             </div>
           </div>
           <div className="text-right">
@@ -241,24 +242,24 @@ export default function ProducerDetail() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
-            <Leaf className="w-5 h-5 text-emerald-600" />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Maduro</p>
-          </div>
-          <p className="text-2xl font-black text-slate-800 leading-none">{(summary.total_mature || 0).toLocaleString('pt-BR')} kg</p>
-          <p className="text-[10px] font-bold text-slate-400 mt-2">{(summary.total_mature / 60).toFixed(1)} sacas</p>
-        </div>
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
             <Settings className="w-5 h-5 text-[#603813]" />
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Pilado</p>
           </div>
           <p className="text-2xl font-black text-slate-800 leading-none">{(summary.total_milled || 0).toLocaleString('pt-BR')} kg</p>
           <p className="text-[10px] font-bold text-slate-400 mt-2">{(summary.total_milled / 60).toFixed(1)} sacas</p>
         </div>
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <DollarSign className="w-5 h-5 text-[#603813]" />
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Comissão do Secador</p>
+          </div>
+          <p className="text-2xl font-black text-slate-800 leading-none">{(summary.commission_kg || 0).toLocaleString('pt-BR')} kg</p>
+          <p className="text-[10px] font-bold text-slate-400 mt-2">{(summary.commission_sacas || 0).toFixed(1)} sacas</p>
+        </div>
         <div className="bg-blue-600 p-6 rounded-3xl shadow-xl shadow-blue-100">
           <div className="flex items-center gap-3 mb-3">
             <Box className="w-5 h-5 text-white/60" />
-            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Saldo Atual</p>
+            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Saldo disponível para vendas</p>
           </div>
           <p className="text-2xl font-black text-white leading-none">{(summary.balance || 0).toLocaleString('pt-BR')} kg</p>
           <p className="text-[10px] font-bold text-white/60 mt-2">{(summary.balance / 60).toFixed(1)} sacas</p>

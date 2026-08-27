@@ -26,12 +26,19 @@ async function initDb() {
       table.increments('id').primary();
       table.string('name').notNullable();
       table.dateTime('harvest_finished_at').nullable();
+      table.decimal('commission_pct').notNullable().defaultTo(0);
     });
   } else {
     const hasColumn = await db.schema.hasColumn('producers', 'harvest_finished_at');
     if (!hasColumn) {
       await db.schema.table('producers', table => {
         table.dateTime('harvest_finished_at').nullable();
+      });
+    }
+    const hasCommission = await db.schema.hasColumn('producers', 'commission_pct');
+    if (!hasCommission) {
+      await db.schema.table('producers', table => {
+        table.decimal('commission_pct').notNullable().defaultTo(0);
       });
     }
   }

@@ -101,25 +101,33 @@ app.post('/api/login', (req, res) => {
 // Proteger rotas da API
 app.get('/api/stats', authMiddleware, async (req, res) => {
   try {
-    const producers = await db('producers').select('id');
+    const producers = await db('producers').select('id', 'commission_pct');
     let totalMature = 0;
     let totalMilled = 0;
     let totalSold = 0;
+    let totalCommission = 0;
 
     for (const p of producers) {
       const guides = await db('guides').where({ producer_id: p.id });
       const sales = await db('sales').where({ producer_id: p.id });
       
+      const pMilled = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
+      const pSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
+      const pct = Number(p.commission_pct || 0);
+      const pCommission = pMilled * (pct / 100);
+
       totalMature += guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
-      totalMilled += guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
-      totalSold += sales.reduce((acc, s) => acc + Number(s.quantity), 0);
+      totalMilled += pMilled;
+      totalSold += pSold;
+      totalCommission += pCommission;
     }
 
     res.json({
       total_mature: totalMature,
       total_milled: totalMilled,
       total_sold: totalSold,
-      balance: totalMilled - totalSold,
+      total_commission: totalCommission,
+      balance: totalMilled - totalCommission - totalSold,
       quotes: currentQuotes
     });
   } catch (err) {
@@ -137,10 +145,14 @@ app.get('/api/producers', authMiddleware, async (req, res) => {
       const totalMature = guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
       const totalMilled = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
       const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
+      const commissionPct = Number(p.commission_pct || 0);
+      const commissionKg = totalMilled * (commissionPct / 100);
       
       return { 
         ...p, 
-        balance: totalMilled - totalSold,
+        balance: totalMilled - commissionKg - totalSold,
+        commission_kg: commissionKg,
+        commission_sacas: commissionKg / 60,
         total_mature: totalMature,
         total_milled: totalMilled,
         total_sold: totalSold
@@ -165,8 +177,11 @@ app.post('/api/producers', authMiddleware, async (req, res) => {
 
 app.patch('/api/producers/:id', authMiddleware, async (req, res) => {
   try {
-    const { name } = req.body;
-    await db('producers').where({ id: req.params.id }).update({ name });
+    const { name, commission_pct } = req.body;
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (commission_pct !== undefined) updateData.commission_pct = commission_pct;
+    await db('producers').where({ id: req.params.id }).update(updateData);
     res.json({ message: 'Produtor atualizado' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -197,6 +212,8 @@ app.get('/api/producers/:id', authMiddleware, async (req, res) => {
     const totalMilled = guides.filter(g => g.status === 'FINALIZADO').reduce((acc, g) => acc + Number(g.weight_milled), 0);
     const totalMature = guides.reduce((acc, g) => acc + Number(g.weight_mature), 0);
     const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
+    const commissionPct = Number(producer.commission_pct || 0);
+    const commissionKg = totalMilled * (commissionPct / 100);
 
     res.json({
       ...producer,
@@ -204,7 +221,10 @@ app.get('/api/producers/:id', authMiddleware, async (req, res) => {
         total_mature: totalMature,
         total_milled: totalMilled,
         total_sold: totalSold,
-        balance: totalMilled - totalSold
+        commission_pct: commissionPct,
+        commission_kg: commissionKg,
+        commission_sacas: commissionKg / 60,
+        balance: totalMilled - commissionKg - totalSold
       },
       guides,
       sales
@@ -295,7 +315,9 @@ app.post('/api/sales', authMiddleware, async (req, res) => {
     const sales = await db('sales').where({ producer_id });
     const totalMilled = guides.reduce((acc, g) => acc + Number(g.weight_milled), 0);
     const totalSold = sales.reduce((acc, s) => acc + Number(s.quantity), 0);
-    const balance = totalMilled - totalSold;
+    const commissionPct = Number(producer.commission_pct || 0);
+    const commissionKg = totalMilled * (commissionPct / 100);
+    const balance = totalMilled - commissionKg - totalSold;
 
     if (quantity > balance) {
       return res.status(400).json({ error: 'Insuficiente saldo em estoque' });
