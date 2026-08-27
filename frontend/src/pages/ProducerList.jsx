@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, ChevronRight, Plus, Trash2, Edit2, Home } from 'lucide-react';
 import api from '../utils/api';
+import Swal from 'sweetalert2';
 
 export default function ProducerList() {
   const navigate = useNavigate();
@@ -59,7 +60,18 @@ export default function ProducerList() {
   const handleDelete = async (e, id, name) => {
     e.preventDefault();
     e.stopPropagation();
-    if (window.confirm(`Tem certeza que deseja excluir o produtor ${name} e todos os seus lançamentos?`)) {
+    const result = await Swal.fire({
+      title: 'Excluir Produtor?',
+      html: `Tem certeza que deseja excluir o produtor <b>${name}</b> e todos os seus lançamentos?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#b91c1c',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Excluir',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
       try {
         await api.delete(`/producers/${id}`);
         fetchData();
